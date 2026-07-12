@@ -3,234 +3,148 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Our Budget Tracker</title>
+    <title>Bubu & Yier Finance</title>
     <style>
         :root {
             --bg-color: #f4f6f9;
             --card-bg: #ffffff;
-            --text-color: #333333;
+            --text-color: #1e293b;
             --primary-color: #2563eb;
+            --danger-color: #ef4444;
             --success-color: #10b981;
-            --border-color: #e5e7eb;
+            --border-color: #e2e8f0;
         }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
             background-color: var(--bg-color);
             color: var(--text-color);
             margin: 0;
-            padding: 16px;
+            padding: 0;
             display: flex;
+            justify-content: center;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* --- AUTH LOCK SCREEN --- */
+        #lockScreen {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+            z-index: 1000;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .user-select-container {
+            display: flex;
+            gap: 24px;
+            margin-bottom: 40px;
+        }
+
+        .user-avatar-btn {
+            background: white;
+            border: 2px solid transparent;
+            border-radius: 20px;
+            padding: 20px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.2s;
+        }
+
+        .user-avatar-btn.selected {
+            border-color: var(--primary-color);
+            transform: scale(1.05);
+            box-shadow: 0 10px 15px -3px rgba(37, 99, 235, 0.2);
+        }
+
+        .pin-dots {
+            display: flex;
+            gap: 16px;
+            margin-bottom: 30px;
+        }
+
+        .dot {
+            width: 14px;
+            height: 14px;
+            border: 2px solid var(--primary-color);
+            border-radius: 50%;
+            transition: background 0.1s;
+        }
+
+        .dot.active {
+            background: var(--primary-color);
+        }
+
+        .pin-pad {
+            display: grid;
+            grid-template-columns: repeat(3, 75px);
+            gap: 20px;
             justify-content: center;
         }
 
-        .app-container {
+        .pin-btn {
+            width: 75px;
+            height: 75px;
+            border-radius: 50%;
+            background: white;
+            border: none;
+            font-size: 1.75rem;
+            font-weight: 400;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+
+        .pin-btn:active {
+            background: #dbeafe;
+        }
+
+        /* --- MAIN APP INTERFACE --- */
+        #appInterface {
             width: 100%;
             max-width: 480px;
-            background: var(--card-bg);
-            padding: 24px;
-            border-radius: 16px;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-        }
-
-        h2 {
-            margin-top: 0;
-            font-size: 1.5rem;
-            text-align: center;
-            color: #1e293b;
-        }
-
-        .form-group {
-            margin-bottom: 16px;
-        }
-
-        label {
-            display: block;
-            font-size: 0.875rem;
-            font-weight: 600;
-            margin-bottom: 6px;
-            color: #475569;
-        }
-
-        input, select {
-            width: 100%;
-            padding: 12px;
-            border: 1px solid var(--border-color);
-            border-radius: 8px;
-            font-size: 1rem;
-            box-sizing: border-box;
-            background-color: #f8fafc;
-        }
-
-        input:focus, select:focus {
-            outline: none;
-            border-color: var(--primary-color);
-            background-color: #fff;
-        }
-
-        .radio-group {
             display: flex;
-            gap: 12px;
+            flex-direction: column;
+            height: 100%;
+            background: var(--card-bg);
+            position: relative;
         }
 
-        .radio-label {
+        .app-header {
+            padding: 16px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #fff;
+        }
+
+        .app-header h1 { margin: 0; font-size: 1.25rem; }
+
+        .main-content {
             flex: 1;
-            text-align: center;
-            padding: 12px;
-            border: 1px solid var(--border-color);
-            border-radius: 8px;
-            cursor: pointer;
-            font-weight: 500;
-            background-color: #f8fafc;
+            overflow-y: auto;
+            padding: 16px;
+            padding-bottom: 80px; /* Space for bottom nav bar */
         }
 
-        input[type="radio"] {
-            display: none;
-        }
+        .tab-panel { display: none; }
+        .tab-panel.active { display: block; }
 
-        input[type="radio"]:checked + .radio-label.expense {
-            background-color: #fee2e2;
-            border-color: #ef4444;
-            color: #991b1b;
-        }
-
-        input[type="radio"]:checked + .radio-label.income {
-            background-color: #dcfce7;
-            border-color: #22c55e;
-            color: #166534;
-        }
-
-        button {
-            width: 100%;
-            padding: 14px;
-            background-color: var(--primary-color);
-            color: white;
-            border: none;
-            border-radius: 8px;
-            font-size: 1rem;
-            font-weight: 600;
-            cursor: pointer;
-            margin-top: 8px;
-            transition: background 0.2s;
-        }
-
-        button:active {
-            background-color: #1d4ed8;
-        }
-
-        #statusMessage {
-            margin-top: 12px;
-            text-align: center;
-            font-size: 0.875rem;
-            font-weight: 500;
-        }
-    </style>
-</head>
-<body>
-
-<div class="app-container">
-    <h2>Log Transaction</h2>
-    <form id="budgetForm">
-        
-        <div class="form-group">
-            <label for="user">Who is logging in?</label>
-            <select id="user" required>
-                <option value="CYO">Bubu 🐻</option>
-                <option value="LKS">Yier 🐼</option>
-            </select>
-        </div> 
-
-        <div class="form-group">
-            <label>Type</label>
-            <div class="radio-group">
-                <input type="radio" id="typeExpense" name="type" value="Expense" checked>
-                <label for="typeExpense" class="radio-label expense">Expense</label>
-                
-                <input type="radio" id="typeIncome" name="type" value="Income">
-                <label for="typeIncome" class="radio-label income">Income</label>
-            </div>
-        </div>
-
-        <div class="form-group">
-            <label for="amount">Amount (RM)</label>
-            <input type="number" id="amount" step="0.01" placeholder="0.00" required inputmode="decimal">
-        </div>
-
-        <div class="form-group">
-            <label for="category">Category</label>
-            <select id="category" required>
-                <option value="Food">Food</option>
-                <option value="Insurance">Insurance</option>
-                <option value="Car Loan">Car Loan</option>
-                <option value="Savings & Investments">Savings & Investments</option>
-                <option value="Salary">Salary</option>
-                <option value="Others">Others</option>
-            </select>
-        </div>
-
-        <div class="form-group">
-            <label for="description">Description / Notes</label>
-            <input type="text" id="description" placeholder="e.g., Dinner, Petrol, Bonus" required>
-        </div>
-
-        <button type="submit" id="submitBtn">Submit Transaction</button>
-        <div id="statusMessage"></div>
-    </form>
-</div>
-
-<script>
-    // Paste your Google Apps Script URL here inside the quotes
-    const WEB_APP_URL = "YOUR_DEPLOYED_APPS_SCRIPT_URL_HERE";
-
-    document.getElementById('budgetForm').addEventListener('submit', async function(e) {
-        e.preventDefault();
-        
-        const submitBtn = document.getElementById('submitBtn');
-        const statusMessage = document.getElementById('statusMessage');
-        
-        // Disable button while processing
-        submitBtn.disabled = true;
-        submitBtn.innerText = "Saving to Google Sheets...";
-        statusMessage.innerText = "";
-
-        // Gather transaction details
-        const payload = {
-            user: document.getElementById('user').value,
-            type: document.querySelector('input[name="type"]:checked').value,
-            amount: document.getElementById('amount').value,
-            category: document.getElementById('category').value,
-            description: document.getElementById('description').value
-        };
-
-        try {
-            // Send payload to Google Apps Script
-            const response = await fetch(WEB_APP_URL, {
-                method: "POST",
-                mode: "no-cors", // Required to bypass strict CORS policies for Apps Script web apps
-                headers: {
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify(payload)
-            });
-
-            // Feedback update
-            statusMessage.style.color = "#10b981";
-            statusMessage.innerText = "Transaction successfully logged!";
-            
-            // Clear entry inputs (keeps user profile and category selected)
-            document.getElementById('amount').value = "";
-            document.getElementById('description').value = "";
-
-        } catch (error) {
-            statusMessage.style.color = "#ef4444";
-            statusMessage.innerText = "Error tracking entry. Please try again.";
-            console.error("Transmission Error:", error);
-        } finally {
-            submitBtn.disabled = false;
-            submitBtn.innerText = "Submit Transaction";
-        }
-    });
-</script>
-
-</body>
-</html>
+        /* --- FORM STRUCTURE --- */
+        .form-group { margin-bottom: 16px; }
+        label { display: block; font-size: 0.875rem; font-weight: 600; margin-bottom: 6px; color: #475569; }
+        input, select { width: 100%; padding: 12px; border: 1px solid var(--border-color); border-radius: 8px; font-size: 1
