@@ -147,4 +147,299 @@
         /* --- FORM STRUCTURE --- */
         .form-group { margin-bottom: 16px; }
         label { display: block; font-size: 0.875rem; font-weight: 600; margin-bottom: 6px; color: #475569; }
-        input, select { width: 100%; padding: 12px; border: 1px solid var(--border-color); border-radius: 8px; font-size: 1
+        input, select { width: 100%; padding: 12px; border: 1px solid var(--border-color); border-radius: 8px; font-size: 1rem; box-sizing: border-box; background: #f8fafc; }
+        
+        .radio-group { display: flex; gap: 12px; }
+        .radio-label { flex: 1; text-align: center; padding: 12px; border: 1px solid var(--border-color); border-radius: 8px; cursor: pointer; font-weight: 500; background: #f8fafc; }
+        input[type="radio"] { display: none; }
+        
+        input[type="radio"]:checked + .radio-label.expense { background: #fee2e2; border-color: #ef4444; color: #991b1b; }
+        input[type="radio"]:checked + .radio-label.income { background: #dcfce7; border-color: #22c55e; color: #166534; }
+        input[type="radio"]:checked + .radio-label.shared { background: #e0f2fe; border-color: #0284c7; color: #075985; }
+
+        button.action-btn { width: 100%; padding: 14px; background: var(--primary-color); color: white; border: none; border-radius: 8px; font-size: 1rem; font-weight: 600; cursor: pointer; }
+        button.action-btn:active { opacity: 0.9; }
+
+        /* --- NAVIGATION BAR --- */
+        .nav-bar {
+            position: absolute;
+            bottom: 0; left: 0; width: 100%;
+            height: 65px;
+            background: #ffffff;
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            box-sizing: border-box;
+        }
+
+        .nav-item {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75rem;
+            color: #64748b;
+            cursor: pointer;
+            font-weight: 500;
+            gap: 4px;
+        }
+
+        .nav-item.active { color: var(--primary-color); }
+        .nav-icon { font-size: 1.25rem; }
+
+        #statusMsg { text-align: center; font-size: 0.875rem; font-weight: 500; margin-top: 10px; }
+    </style>
+</head>
+<body>
+
+    <div id="lockScreen">
+        <h2 style="margin-bottom: 8px; color: #0f172a;">Welcome Back</h2>
+        <p style="margin-top: 0; margin-bottom: 30px; color: #64748b; font-size: 0.9rem;">Select your profile to unlock</p>
+        
+        <div class="user-select-container">
+            <button class="user-avatar-btn" onclick="selectUser('CYO', this)">
+                <span style="font-size: 2.5rem;">🐻</span>
+                <span>Bubu</span>
+            </button>
+            <button class="user-avatar-btn" onclick="selectUser('LKS', this)">
+                <span style="font-size: 2.5rem;">🐼</span>
+                <span>Yier</span>
+            </button>
+        </div>
+
+        <div class="pin-dots">
+            <div class="dot"></div><div class="dot"></div><div class="dot"></div>
+            <div class="dot"></div><div class="dot"></div><div class="dot"></div>
+        </div>
+
+        <div class="pin-pad">
+            <button class="pin-btn" onclick="pressPin('1')">1</button>
+            <button class="pin-btn" onclick="pressPin('2')">2</button>
+            <button class="pin-btn" onclick="pressPin('3')">3</button>
+            <button class="pin-btn" onclick="pressPin('4')">4</button>
+            <button class="pin-btn" onclick="pressPin('5')">5</button>
+            <button class="pin-btn" onclick="pressPin('6')">6</button>
+            <button class="pin-btn" onclick="pressPin('7')">7</button>
+            <button class="pin-btn" onclick="pressPin('8')">8</button>
+            <button class="pin-btn" onclick="pressPin('9')">9</button>
+            <button class="pin-btn" style="background:transparent; box-shadow:none; font-size:1rem; color:#ef4444;" onclick="clearPin()">Clear</button>
+            <button class="pin-btn" onclick="pressPin('0')">0</button>
+            <button class="pin-btn" style="background:transparent; box-shadow:none; font-size:1rem;" disabled></button>
+        </div>
+    </div>
+
+    <div id="appInterface">
+        <div class="app-header">
+            <h1 id="appTitle">Budget PWA</h1>
+            <span id="userBadge" style="font-weight:600; background:#e2e8f0; padding:4px 10px; border-radius:20px; font-size:0.85rem;"></span>
+        </div>
+
+        <div class="main-content">
+            <div id="statusMsg"></div>
+
+            <div id="panelShared" class="tab-panel active">
+                <h3 style="margin-top:0;">Mutual Shared Bill</h3>
+                <form id="sharedForm">
+                    <div class="form-group">
+                        <label>Paid By</label>
+                        <div class="radio-group">
+                            <input type="radio" id="paidCyo" name="paidBy" value="CYO" checked>
+                            <label for="paidCyo" class="radio-label shared">Bubu 🐻 pays</label>
+                            <input type="radio" id="paidLks" name="paidBy" value="LKS">
+                            <label for="paidLks" class="radio-label shared">Yier 🐼 pays</label>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="sharedAmount">Amount (RM)</label>
+                        <input type="number" id="sharedAmount" step="0.01" placeholder="0.00" required inputmode="decimal">
+                    </div>
+                    <div class="form-group">
+                        <label for="sharedCategory">Category</label>
+                        <select id="sharedCategory" required>
+                            <option value="Food & Groceries">Food & Groceries</option>
+                            <option value="House Installment">House & Utilities</option>
+                            <option value="Outing / Date">Outing & Dates</option>
+                            <option value="Others">Shared Others</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="sharedDesc">Description</label>
+                        <input type="text" id="sharedDesc" placeholder="e.g., Aeon Shopping, Utilities bill" required>
+                    </div>
+                    <button type="submit" class="action-btn">Log Shared Expense</button>
+                </form>
+            </div>
+
+            <div id="panelPrivate" class="tab-panel">
+                <h3 style="margin-top:0;">My Private Pocket Ledger</h3>
+                <form id="privateForm">
+                    <div class="form-group">
+                        <label>Transaction Flow</label>
+                        <div class="radio-group">
+                            <input type="radio" id="flowExpense" name="flowType" value="Expense" checked>
+                            <label for="flowExpense" class="radio-label expense">Personal Outflow</label>
+                            <input type="radio" id="flowIncome" name="flowType" value="Income">
+                            <label for="flowIncome" class="radio-label income">Personal Inflow</label>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="privAmount">Amount (RM)</label>
+                        <input type="number" id="privAmount" step="0.01" placeholder="0.00" required inputmode="decimal">
+                    </div>
+                    <div class="form-group">
+                        <label for="privCategory">Category</label>
+                        <select id="privCategory" required>
+                            <option value="Insurance">Insurance</option>
+                            <option value="Car Loan">Car Expenses</option>
+                            <option value="Savings & Investments">Savings/Stash</option>
+                            <option value="Personal Food">Individual Meals</option>
+                            <option value="Salary">Salary Inflow</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="privDesc">Private Description</label>
+                        <input type="text" id="privDesc" placeholder="e.g., Medical Insurance, Personal asset buy" required>
+                    </div>
+                    <button type="submit" class="action-btn" style="background-color: #4b5563;">Log Private Transaction</button>
+                </form>
+            </div>
+        </div>
+
+        <div class="nav-bar">
+            <div class="nav-item active" onclick="switchTab('shared', this)">
+                <span class="nav-icon">🤝</span>
+                <span>Shared Ledger</span>
+            </div>
+            <div class="nav-item" onclick="switchTab('private', this)">
+                <span class="nav-icon">🔒</span>
+                <span>My Private Room</span>
+            </div>
+        </div>
+    </div>
+
+<script>
+    // Paste your Google Apps Script URL here inside the quotes
+    const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbyRwnAE-rROX1rxbZZngG_G3HaR2cUl-84eYQhcoOpSo9EqSrwwXpaDFYlo40cZ4SF7/exec";
+
+    // SECURITY PIN REGISTRY
+    const USER_PINS = {
+        "CYO": "111111", // Bubu's PIN
+        "LKS": "222222"  // Yier's PIN
+    };
+
+    let selectedUser = "";
+    let currentPinInput = "";
+
+    function selectUser(userCode, element) {
+        selectedUser = userCode;
+        document.querySelectorAll('.user-avatar-btn').forEach(btn => btn.classList.remove('selected'));
+        element.classList.add('selected');
+        clearPin();
+    }
+
+    function pressPin(num) {
+        if (!selectedUser || currentPinInput.length >= 6) return;
+        
+        currentPinInput += num;
+        updatePinDots();
+
+        if (currentPinInput.length === 6) {
+            verifyPin();
+        }
+    }
+
+    function clearPin() {
+        currentPinInput = "";
+        updatePinDots();
+    }
+
+    function updatePinDots() {
+        const dots = document.querySelectorAll('.dot');
+        dots.forEach((dot, idx) => {
+            if (idx < currentPinInput.length) {
+                dot.classList.add('active');
+            } else {
+                dot.classList.remove('active');
+            }
+        });
+    }
+
+    function verifyPin() {
+        if (USER_PINS[selectedUser] === currentPinInput) {
+            // Success: Unlock and animate screen slide down/away
+            document.getElementById('lockScreen').style.transform = "translateY(-100%)";
+            document.getElementById('userBadge').innerText = selectedUser === 'CYO' ? "Bubu 🐻" : "Yier 🐼";
+            
+            // Auto-check corresponding "Paid By" radio button on login layout state
+            if(selectedUser === 'CYO') document.getElementById('paidCyo').checked = true;
+            else document.getElementById('paidLks').checked = true;
+        } else {
+            // Fail feedback
+            alert("Incorrect Security PIN. Please try again.");
+            clearPin();
+        }
+    }
+
+    function switchTab(tabName, element) {
+        document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
+        document.querySelectorAll('.tab-panel').forEach(panel => panel.classList.remove('active'));
+        
+        element.classList.add('active');
+        if (tabName === 'shared') document.getElementById('panelShared').classList.add('active');
+        if (tabName === 'private') document.getElementById('panelPrivate').classList.add('active');
+    }
+
+    // SUBMIT SHARED ENTRY
+    document.getElementById('sharedForm').addEventListener('submit', function(e) {
+        sendToSpreadsheet(e, {
+            targetTable: "Shared_Ledger",
+            paidBy: document.querySelector('input[name="paidBy"]:checked').value,
+            amount: document.getElementById('sharedAmount').value,
+            category: document.getElementById('sharedCategory').value,
+            description: document.getElementById('sharedDesc').value,
+            operator: selectedUser
+        }, 'sharedForm');
+    });
+
+    // SUBMIT PRIVATE ENTRY
+    document.getElementById('privateForm').addEventListener('submit', function(e) {
+        sendToSpreadsheet(e, {
+            targetTable: "Private_Ledger",
+            flowType: document.querySelector('input[name="flowType"]:checked').value,
+            amount: document.getElementById('privAmount').value,
+            category: document.getElementById('privCategory').value,
+            description: document.getElementById('privDesc').value,
+            operator: selectedUser
+        }, 'privateForm');
+    });
+
+    async function sendToSpreadsheet(e, payload, formId) {
+        e.preventDefault();
+        const msgDiv = document.getElementById('statusMsg');
+        msgDiv.style.color = "#2563eb";
+        msgDiv.innerText = "Syncing with cloud backend...";
+
+        try {
+            await fetch(WEB_APP_URL, {
+                method: "POST",
+                mode: "no-cors",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(payload)
+            });
+
+            msgDiv.style.color = var(--success-color);
+            msgDiv.innerText = "Logged securely!";
+            document.getElementById(formId).reset();
+            
+            // Restore context variables after resets
+            if(selectedUser === 'CYO') document.getElementById('paidCyo').checked = true;
+            else document.getElementById('paidLks').checked = true;
+
+        } catch(err) {
+            msgDiv.style.color = var(--danger-color);
+            msgDiv.innerText = "Cloud transmission failure.";
+        }
+    }
+</script>
+</body>
+</html>
