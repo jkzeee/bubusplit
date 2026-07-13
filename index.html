@@ -545,25 +545,46 @@
         payload.operator = selectedUserCode;
       }
 
-      await sendToSpreadsheet(payload);
-      showToast("Transaction synced successfully!", "success");
-      
-      document.getElementById('tx-desc').value = "";
-      document.getElementById('tx-amount').value = "";
-      submitBtn.disabled = false;
-      submitBtn.textContent = "Save Entry";
-      
-      syncFetch();
-    }
+// Upgraded Connection Module using JSONP Pipeline to bypass CORS restrictions
+async function sendToSpreadsheet(payload) {
+  return new Promise((resolve) => {
+    // Generate a unique fallback handler id for this specific transaction request
+    const callbackName = "jsonp_" + Math.round(Math.random() * 1000000);
+    
+    // Attach temporary listener to the global window space
+    window[callbackName] = function(data) {
+      delete window[callbackName];
+      document.body.removeChild(script);
+      resolve(data);
+    };
 
-    async function syncFetch() {
-      const response = await sendToSpreadsheet({ action: "READ", operator: selectedUserCode });
-      if (response && response.status === "success") {
-        dataCache.shared = response.shared || [];
-        dataCache.private = response.private || [];
-        renderFeed();
-      }
-    }
+    // Serialize payload variables alongside callback anchor directly into request parameters
+    const encodedPayload = encodeURIComponent(JSON.stringify(payload));
+    const script = document.createElement("script");
+    script.src = `${WEB_APP_URL}?callback=${callbackName}&prefix=${callbackName}&data=${encodedPayload}`;
+    
+    // Inject node directly into DOM to fire cross-origin request safely
+    script.onerror = function() {
+      if(window[callbackName]) delete window[callbackName];
+      try { document.body.removeChild(script); } catch(e){}
+      resolve(null);
+    };
+    
+    document.body.appendChild(script);
+  });
+}
+
+// Optimized Sync Fetch to refresh local interface states instantly
+async function syncFetch() {
+  const response = await sendToSpreadsheet({ action: "READ", operator: selectedUserCode });
+  if (response && response.status === "success") {
+    dataCache.shared = response.shared || [];
+    dataCache.private = response.private || [];
+    renderFeed();
+  } else {
+    showToast("History data sync unavailable", "danger");
+  }
+}
 
     function renderFeed() {
       const feed = document.getElementById('transaction-feed');
