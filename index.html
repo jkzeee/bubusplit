@@ -552,6 +552,7 @@
 
   </div>
 
+<!-- SLIDING MODAL DRAWER INPUT SHEETS -->
   <div class="modal-bottom-drawer" id="entry-drawer" onclick="closeDrawerViaBackdrop(event)">
     <div class="drawer-surface">
       <div class="drawer-header">
@@ -559,12 +560,22 @@
         <button class="drawer-close-btn" onclick="closeDrawer()">Cancel</button>
       </div>
 
+      <!-- Ledger Source Picker Switch Tab Segment -->
       <div class="tricount-tabs" style="max-width:100%; margin-bottom:20px;">
         <button class="tri-tab active" id="form-tab-shared" type="button" onclick="setFormTable('Shared_Ledger')">Joint Ledger</button>
         <button class="tri-tab" id="form-tab-private" type="button" onclick="setFormTable('Private_Ledger')">Private Vault</button>
       </div>
 
       <form id="ledger-form" onsubmit="handleFormSubmit(event)">
+        <!-- WHO PAID TOGGLE (Only shows for Joint Ledger) -->
+        <div class="form-group" id="payer-toggle-group">
+          <label>Who Paid?</label>
+          <div class="tricount-tabs" style="max-width:100%; margin-top:4px; background-color: var(--bg-dark);">
+            <button class="tri-tab" id="payer-btn-CYO" type="button" onclick="setFormPayer('CYO')">🐻 布布</button>
+            <button class="tri-tab" id="payer-btn-LKS" type="button" onclick="setFormPayer('LKS')">🐼 一二</button>
+          </div>
+        </div>
+
         <div class="form-group">
           <label>Date</label>
           <input type="date" id="tx-date" class="form-control" required>
@@ -583,14 +594,6 @@
         <div class="form-group">
           <label>Category</label>
           <select id="tx-category" class="form-control"></select>
-        </div>
-
-        <div class="form-group" id="flow-group" style="display: none;">
-          <label>Type</label>
-          <select id="tx-flow" class="form-control">
-            <option value="Expense">Personal Outflow</option>
-            <option value="Income">Personal Inflow</option>
-          </select>
         </div>
 
         <button type="submit" class="sheet-submit-btn" id="form-submit-btn">Save Entry</button>
