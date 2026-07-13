@@ -679,27 +679,59 @@
       renderFeed();
     }
 
+let formSelectedPayer = ""; // Track who paid inside the form context
+
+    // Category mappings with implicit flow assignments for Private Vault
+    const PRIVATE_CATEGORIES = {
+      // Income streams (Inflow)
+      "Government Salary": "Income",
+      "Locum Income": "Income",
+      "Investment Inflow": "Income",
+      "Others (Income)": "Income",
+      // Expense streams (Outflow)
+      "Personal Food": "Expense",
+      "Car Loan": "Expense",
+      "Petrol & Tolls": "Expense",
+      "Car Maintenance": "Expense",
+      "Insurance": "Expense",
+      "Savings & Investments": "Expense",
+      "Utilities & Subscriptions": "Expense",
+      "Others (Personal)": "Expense"
+    };
+
+    function openDrawer() { 
+      // Automatically default the form's payer to whoever is currently logged into the app
+      setFormPayer(selectedUserCode);
+      document.getElementById('entry-drawer').classList.add('open'); 
+    }
+
+    function setFormPayer(payerCode) {
+      formSelectedPayer = payerCode;
+      document.getElementById('payer-btn-CYO').classList.toggle('active', payerCode === 'CYO');
+      document.getElementById('payer-btn-LKS').classList.toggle('active', payerCode === 'LKS');
+    }
+
     function setFormTable(targetTable) {
       currentTab = targetTable;
       document.getElementById('form-tab-shared').classList.toggle('active', targetTable === 'Shared_Ledger');
       document.getElementById('form-tab-private').classList.toggle('active', targetTable === 'Private_Ledger');
-      document.getElementById('flow-group').style.display = targetTable === 'Private_Ledger' ? 'block' : 'none';
+      
+      // Dynamic visibility rules for the "Who Paid" selector toggle
+      document.getElementById('payer-toggle-group').style.display = targetTable === 'Shared_Ledger' ? 'block' : 'none';
       
       const catSelect = document.getElementById('tx-category');
       catSelect.innerHTML = "";
       
-      const options = targetTable === 'Shared_Ledger' 
-        ? ["Food & Groceries", "House Rent", "Utilities & Subscriptions", "Outing / Dates", "Shared Projects / Goals", "Others (Shared)"]
-        : ["Government Salary", "Locum Income", "Car Loan", "Petrol & Tolls", "Car Maintenance", "Insurance", "Savings & Investments", "Utilities & Subscriptions", "Personal Food", "Others (Personal)"];
-        
-      options.forEach(opt => catSelect.add(new Option(opt, opt)));
+      if (targetTable === 'Shared_Ledger') {
+        const sharedOptions = ["Food & Groceries", "House Rent", "Utilities & Subscriptions", "Outing / Dates", "Shared Projects / Goals", "Others (Shared)"];
+        sharedOptions.forEach(opt => catSelect.add(new Option(opt, opt)));
+      } else {
+        // Populate seamlessly with both Income and Expenses combined
+        Object.keys(PRIVATE_CATEGORIES).forEach(opt => catSelect.add(new Option(opt, opt)));
+      }
     }
 
-    function openDrawer() { document.getElementById('entry-drawer').classList.add('open'); }
-    function closeDrawer() { document.getElementById('entry-drawer').classList.remove('open'); }
-    function closeDrawerViaBackdrop(e) { if(e.target.id === 'entry-drawer') closeDrawer(); }
-
-    // OPTIMISTIC UI ENGINE (INSTANT RENDERING)
+    // UPDATED INSTANT OPTIMISTIC FORM HANDLING ENGINE
     async function handleFormSubmit(e) {
       e.preventDefault();
       
@@ -708,37 +740,46 @@
       const inputAmount = parseFloat(document.getElementById('tx-amount').value) || 0;
       const inputCategory = document.getElementById('tx-category').value;
       
-      // 1. Create temporary optimistic object layout
       const tempId = "temp_" + Date.now();
-      const tempRow = [
-        tempId, 
-        inputDate, 
-        inputDesc, 
-        inputAmount, 
-        selectedUserCode, 
-        "Equally", 
-        inputCategory
-      ];
-
-      // 2. Instantly push to local cache data state & recalculate UI elements
+      
+      // Compute flows and structures optimistically
       if (currentTab === "Shared_Ledger") {
+        const tempRow = [
+          tempId, 
+          inputDate, 
+          inputDesc, 
+          inputAmount, 
+          formSelectedPayer, // Uses the selected toggle value instead of forcing logged-in user
+          "Equally", 
+          inputCategory
+        ];
         dataCache.shared.push(tempRow);
       } else {
-        const flowType = document.getElementById('tx-flow').value;
-        dataCache.private.push([tempId, inputDate, inputDesc, inputAmount, selectedUserCode, flowType, inputCategory]);
+        // Smart auto-assign: lookup category type automatically
+        const flowType = PRIVATE_CATEGORIES[inputCategory] || "Expense";
+        const tempRow = [
+          tempId,
+          inputDate,
+          inputDesc,
+          inputAmount,
+          selectedUserCode,
+          flowType, // Automatically assigned behind the scenes
+          inputCategory
+        ];
+        dataCache.private.push(tempRow);
       }
 
-      // 3. Render immediately to UI display layout frames
+      // Refresh UI instantly
       calculateRunningMetrics();
       renderFeed();
       closeDrawer();
       showToast("Entry Added!", "success");
 
-      // Reset form variables safely
+      // Reset fields
       document.getElementById('tx-desc').value = "";
       document.getElementById('tx-amount').value = "";
 
-      // 4. Fire network sync completely in background thread execution
+      // Construct background sync payload
       let payload = {
         action: "CREATE",
         targetTable: currentTab,
@@ -748,12 +789,15 @@
         category: inputCategory
       };
 
-      if (currentTab === "Shared_Ledger") { payload.paidBy = selectedUserCode; } 
-      else { payload.flowType = document.getElementById('tx-flow').value; payload.operator = selectedUserCode; }
+      if (currentTab === "Shared_Ledger") { 
+        payload.paidBy = formSelectedPayer; 
+      } else { 
+        payload.flowType = PRIVATE_CATEGORIES[inputCategory] || "Expense"; 
+        payload.operator = selectedUserCode; 
+      }
 
+      // Fire network sync completely in background thread execution
       const response = await sendToSpreadsheet(payload);
-      
-      // Quietly swap temp data out for official database payload sync frames
       if (!response || response.status !== "success") {
         showToast("Sync Background Fail!", "danger");
       }
