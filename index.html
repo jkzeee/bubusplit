@@ -368,4 +368,458 @@
       color: var(--text-muted);
       text-transform: uppercase;
       margin-bottom: 6px;
-      letter
+      letter-spacing: 0.5px;
+    }
+
+    .form-control {
+      width: 100%;
+      background-color: var(--bg-input);
+      border: 1px solid transparent;
+      color: var(--text-main);
+      padding: 14px;
+      font-size: 1rem;
+      border-radius: 12px;
+      outline: none;
+    }
+
+    .form-control:focus {
+      border-color: var(--accent-blue);
+    }
+
+    .sheet-submit-btn {
+      width: 100%;
+      background-color: var(--accent-blue);
+      color: white;
+      border: none;
+      padding: 16px;
+      font-size: 1rem;
+      font-weight: 600;
+      border-radius: 14px;
+      cursor: pointer;
+      margin-top: 12px;
+    }
+
+    #toast {
+      position: fixed;
+      bottom: 100px;
+      left: 50%;
+      transform: translateX(-50%) translateY(150px);
+      background-color: var(--bg-pill);
+      color: var(--text-main);
+      padding: 12px 24px;
+      border-radius: 30px;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.5);
+      font-size: 0.9rem;
+      font-weight: 600;
+      transition: transform 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      z-index: 1100;
+    }
+    #toast.show { transform: translateX(-50%) translateY(0); }
+  </style>
+</head>
+<body>
+
+  <div class="app-container">
+    
+    <div id="auth-view" class="view-section active">
+      <h2 class="pin-title">Who is recording?</h2>
+      <p class="pin-subtitle">Tap profile to open ledger</p>
+      
+      <div class="user-select-container">
+        <button class="user-avatar-btn" id="avatar-CYO" onclick="loginUser('CYO')">
+          <span style="font-size: 2.5rem;">🐻</span>
+          <span style="margin-top:4px;">Bubu</span>
+        </button>
+        <button class="user-avatar-btn" id="avatar-LKS" onclick="loginUser('LKS')">
+          <span style="font-size: 2.5rem;">🐼</span>
+          <span style="margin-top:4px;">Yier</span>
+        </button>
+      </div>
+    </div>
+
+    <div id="main-view" class="view-section">
+      <div class="tricount-header">
+        <button class="switch-profile-badge" onclick="logoutToProfiles()">🔄 Switch</button>
+        <div class="avatar-main" id="header-avatar">🐻</div>
+        <h2 class="app-main-title">熊熊币记录</h2>
+        
+        <div class="tricount-tabs">
+          <button class="tri-tab active" id="btn-sub-exp" onclick="setSubView('expenses')">Expenses</button>
+          <button class="tri-tab" id="btn-sub-bal" onclick="setSubView('balances')">Balances</button>
+        </div>
+
+        <div class="metrics-summary-bar">
+          <div class="metric-block">
+            <div class="metric-label">My Expenses</div>
+            <div class="metric-val" id="val-my-expenses" style="color: var(--accent-blue);">RM 0.00</div>
+          </div>
+          <div class="metric-block">
+            <div class="metric-label">Total Expenses</div>
+            <div class="metric-val" id="val-total-expenses">RM 0.00</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="content-scroll-zone" id="sub-view-expenses"></div>
+
+      <div class="content-scroll-zone" id="sub-view-balances" style="display: none;">
+        <div class="balance-card-box">
+          <div style="display:flex; justify-content:space-between; margin-bottom:14px; font-size:0.95rem;">
+            <span style="color:var(--text-muted);">Bubu 🐻 Paid Shared Total</span>
+            <span id="bal-bubu-paid" style="font-weight:700;">RM 0.00</span>
+          </div>
+          <div style="display:flex; justify-content:space-between; margin-bottom:14px; font-size:0.95rem;">
+            <span style="color:var(--text-muted);">Yier 🐼 Paid Shared Total</span>
+            <span id="bal-yier-paid" style="font-weight:700;">RM 0.00</span>
+          </div>
+          <hr style="border:0; border-top:1px solid var(--bg-pill); margin:12px 0;">
+          <div class="settlement-alert" id="settlement-sentence">Calculating balance splits...</div>
+        </div>
+      </div>
+
+      <div class="floating-action-anchor">
+        <button class="fab-btn" onclick="openDrawer()">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="3" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+        </button>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="modal-bottom-drawer" id="entry-drawer" onclick="closeDrawerViaBackdrop(event)">
+    <div class="drawer-surface">
+      <div class="drawer-header">
+        <h3 style="font-size: 1.2rem; font-weight:700;">Add New Transaction</h3>
+        <button class="drawer-close-btn" type="button" onclick="closeDrawer()">Cancel</button>
+      </div>
+
+      <div class="tricount-tabs" style="max-width:100%; margin-bottom:20px;">
+        <button class="tri-tab active" id="form-tab-shared" type="button" onclick="setFormTable('Shared_Ledger')">Joint Ledger</button>
+        <button class="tri-tab" id="form-tab-private" type="button" onclick="setFormTable('Private_Ledger')">Private Vault</button>
+      </div>
+
+      <form id="ledger-form" onsubmit="handleFormSubmit(event)">
+        <div class="form-group" id="payer-toggle-group">
+          <label>Who Paid?</label>
+          <div class="tricount-tabs" style="max-width:100%; margin-top:6px; background-color: var(--bg-dark); padding: 4px;">
+            <button class="tri-tab" id="payer-btn-CYO" type="button" onclick="setFormPayer('CYO')">🐻 布布</button>
+            <button class="tri-tab" id="payer-btn-LKS" type="button" onclick="setFormPayer('LKS')">🐼 一二</button>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Date</label>
+          <input type="date" id="tx-date" class="form-control" required>
+        </div>
+
+        <div class="form-group">
+          <label>Description</label>
+          <input type="text" id="tx-desc" class="form-control" placeholder="What did you buy?" required>
+        </div>
+
+        <div class="form-group">
+          <label>Amount (RM)</label>
+          <input type="number" id="tx-amount" class="form-control" step="0.01" placeholder="0.00" required>
+        </div>
+
+        <div class="form-group">
+          <label>Category</label>
+          <select id="tx-category" class="form-control"></select>
+        </div>
+
+        <button type="submit" class="sheet-submit-btn" id="form-submit-btn">Save Entry</button>
+      </form>
+    </div>
+  </div>
+
+  <div id="toast"></div>
+
+  <script>
+    // Paste your Google Sheet Apps Script macro URL here
+    const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbyRwnAE-rROX1rxbZZngG_G3HaR2cUl-84eYQhcoOpSo9EqSrwwXpaDFYlo40cZ4SF7/exec";
+
+    let selectedUserCode = "";
+    let currentTab = "Shared_Ledger"; 
+    let currentSubView = "expenses"; 
+    let formSelectedPayer = ""; 
+    let dataCache = { shared: [], private: [] };
+
+    const EMOJI_MAP = {
+      "Food & Groceries": "🍲", "Personal Food": "🍲",
+      "House Rent": "🏠", "Utilities & Subscriptions": "🔌",
+      "Outing / Dates": "🎬", "Shared Projects / Goals": "📈",
+      "Government Salary": "💼", "Locum Income": "🩺",
+      "Car Loan": "🚗", "Petrol & Tolls": "⛽",
+      "Car Maintenance": "🔧", "Insurance": "🛡️",
+      "Savings & Investments": "💰", "Others (Shared)": "📦", "Others (Personal)": "📦"
+    };
+
+    const PRIVATE_CATEGORIES = {
+      "Government Salary": "Income", "Locum Income": "Income", "Investment Inflow": "Income", "Others (Income)": "Income",
+      "Personal Food": "Expense", "Car Loan": "Expense", "Petrol & Tolls": "Expense", "Car Maintenance": "Expense",
+      "Insurance": "Expense", "Savings & Investments": "Expense", "Utilities & Subscriptions": "Expense", "Others (Personal)": "Expense"
+    };
+
+    document.getElementById('tx-date').valueAsDate = new Date();
+
+    // Frictionless instantaneous login selector 
+    function loginUser(userCode) {
+      selectedUserCode = userCode;
+      document.getElementById('header-avatar').textContent = userCode === "CYO" ? "🐻" : "🐼";
+      document.getElementById('auth-view').classList.remove('active');
+      document.getElementById('main-view').classList.add('active');
+      setFormTable('Shared_Ledger');
+      syncFetch();
+    }
+
+    function logoutToProfiles() {
+      selectedUserCode = "";
+      document.getElementById('main-view').classList.remove('active');
+      document.getElementById('auth-view').classList.add('active');
+    }
+
+    function setSubView(target) {
+      currentSubView = target;
+      document.getElementById('btn-sub-exp').classList.toggle('active', target === 'expenses');
+      document.getElementById('btn-sub-bal').classList.toggle('active', target === 'balances');
+      document.getElementById('sub-view-expenses').style.display = target === 'expenses' ? 'flex' : 'none';
+      document.getElementById('sub-view-balances').style.display = target === 'balances' ? 'block' : 'none';
+      renderFeed();
+    }
+
+    function openDrawer() { 
+      setFormPayer(selectedUserCode);
+      setFormTable('Shared_Ledger');
+      document.getElementById('entry-drawer').classList.add('open'); 
+    }
+
+    function closeDrawer() { 
+      document.getElementById('entry-drawer').classList.remove('open'); 
+    }
+
+    function closeDrawerViaBackdrop(e) { 
+      if(e.target.id === 'entry-drawer') closeDrawer(); 
+    }
+
+    function setFormPayer(payerCode) {
+      formSelectedPayer = payerCode;
+      const bubuBtn = document.getElementById('payer-btn-CYO');
+      const yierBtn = document.getElementById('payer-btn-LKS');
+      if(bubuBtn && yierBtn) {
+        bubuBtn.classList.toggle('active', payerCode === 'CYO');
+        yierBtn.classList.toggle('active', payerCode === 'LKS');
+      }
+    }
+
+    function setFormTable(targetTable) {
+      currentTab = targetTable;
+      document.getElementById('form-tab-shared').classList.toggle('active', targetTable === 'Shared_Ledger');
+      document.getElementById('form-tab-private').classList.toggle('active', targetTable === 'Private_Ledger');
+      
+      document.getElementById('payer-toggle-group').style.display = targetTable === 'Shared_Ledger' ? 'block' : 'none';
+      
+      const catSelect = document.getElementById('tx-category');
+      catSelect.innerHTML = "";
+      
+      if (targetTable === 'Shared_Ledger') {
+        const sharedOptions = ["Food & Groceries", "House Rent", "Utilities & Subscriptions", "Outing / Dates", "Shared Projects / Goals", "Others (Shared)"];
+        sharedOptions.forEach(opt => catSelect.add(new Option(opt, opt)));
+      } else {
+        Object.keys(PRIVATE_CATEGORIES).forEach(opt => catSelect.add(new Option(opt, opt)));
+      }
+    }
+
+    // INSTANT OPTIMISTIC UI RENDER
+    async function handleFormSubmit(e) {
+      e.preventDefault();
+      
+      const inputDate = document.getElementById('tx-date').value;
+      const inputDesc = document.getElementById('tx-desc').value;
+      const inputAmount = parseFloat(document.getElementById('tx-amount').value) || 0;
+      const inputCategory = document.getElementById('tx-category').value;
+      
+      const tempId = "temp_" + Date.now();
+      
+      if (currentTab === "Shared_Ledger") {
+        dataCache.shared.push([tempId, inputDate, inputDesc, inputAmount, formSelectedPayer, "Equally", inputCategory]);
+      } else {
+        const flowType = PRIVATE_CATEGORIES[inputCategory] || "Expense";
+        dataCache.private.push([tempId, inputDate, inputDesc, inputAmount, selectedUserCode, flowType, inputCategory]);
+      }
+
+      calculateRunningMetrics();
+      renderFeed();
+      closeDrawer();
+      showToast("Entry Added!", "success");
+
+      document.getElementById('tx-desc').value = "";
+      document.getElementById('tx-amount').value = "";
+
+      let payload = {
+        action: "CREATE",
+        targetTable: currentTab,
+        date: inputDate,
+        description: inputDesc,
+        amount: inputAmount,
+        category: inputCategory
+      };
+
+      if (currentTab === "Shared_Ledger") { 
+        payload.paidBy = formSelectedPayer; 
+      } else { 
+        payload.flowType = PRIVATE_CATEGORIES[inputCategory] || "Expense"; 
+        payload.operator = selectedUserCode; 
+      }
+
+      const response = await sendToSpreadsheet(payload);
+      if (!response || response.status !== "success") {
+        showToast("Sync Background Fail!", "danger");
+      }
+      syncFetch(); 
+    }
+
+    async function sendToSpreadsheet(payload) {
+      return new Promise((resolve) => {
+        const callbackName = "jsonp_" + Math.round(Math.random() * 1000000);
+        window[callbackName] = function(data) {
+          delete window[callbackName];
+          try { document.body.removeChild(script); } catch(e){}
+          resolve(data);
+        };
+        const encodedPayload = encodeURIComponent(JSON.stringify(payload));
+        const script = document.createElement("script");
+        script.src = `${WEB_APP_URL}?callback=${callbackName}&prefix=${callbackName}&data=${encodedPayload}`;
+        script.onerror = function() {
+          if(window[callbackName]) delete window[callbackName];
+          try { document.body.removeChild(script); } catch(e){}
+          resolve(null);
+        };
+        document.body.appendChild(script);
+      });
+    }
+
+    async function syncFetch() {
+      try {
+        const response = await sendToSpreadsheet({ action: "READ", operator: selectedUserCode });
+        if (response && response.status === "success") {
+          dataCache.shared = response.shared || [];
+          dataCache.private = response.private || [];
+          calculateRunningMetrics();
+          renderFeed();
+        }
+      } catch (err) { console.log("Sync issue caught."); }
+    }
+
+    function calculateRunningMetrics() {
+      let totalShared = 0, bubuPaid = 0, yierPaid = 0;
+      
+      dataCache.shared.forEach(row => {
+        const amt = parseFloat(row[3]) || 0;
+        totalShared += amt;
+        if(row[4] === "CYO") bubuPaid += amt;
+        if(row[4] === "LKS") yierPaid += amt;
+      });
+
+      let privateExp = 0;
+      dataCache.private.forEach(row => {
+        if(row[5] === "Expense") { privateExp += (parseFloat(row[3]) || 0); }
+      });
+
+      const fairShareOfShared = totalShared / 2;
+
+      document.getElementById('val-total-expenses').textContent = `RM ${totalShared.toFixed(2)}`;
+      document.getElementById('val-my-expenses').textContent = `RM ${(privateExp + fairShareOfShared).toFixed(2)}`;
+
+      document.getElementById('bal-bubu-paid').textContent = `RM ${bubuPaid.toFixed(2)}`;
+      document.getElementById('bal-yier-paid').textContent = `RM ${yierPaid.toFixed(2)}`;
+      
+      const sentence = document.getElementById('settlement-sentence');
+      if (bubuPaid > fairShareOfShared) {
+        sentence.textContent = `Yier 🐼 owes Bubu 🐻 RM ${(bubuPaid - fairShareOfShared).toFixed(2)}`;
+      } else if (yierPaid > fairShareOfShared) {
+        sentence.textContent = `Bubu 🐻 owes Yier 🐼 RM ${(yierPaid - fairShareOfShared).toFixed(2)}`;
+      } else {
+        sentence.textContent = `Settled up perfectly!`;
+      }
+    }
+
+    function renderFeed() {
+      const feed = document.getElementById('sub-view-expenses');
+      if (currentSubView !== 'expenses') return;
+      feed.innerHTML = "";
+      
+      const rows = dataCache.shared; 
+      if (!rows || rows.length === 0) {
+        feed.innerHTML = `<p style="text-align:center;color:var(--text-muted);font-size:0.9rem;padding:40px 16px;">No recent expenses tracked.</p>`;
+        return;
+      }
+
+      const grouped = {};
+      rows.forEach(row => {
+        const dateStr = row[1];
+        if(!grouped[dateStr]) grouped[dateStr] = [];
+        grouped[dateStr].push(row);
+      });
+
+      Object.keys(grouped).sort().reverse().forEach(dateKey => {
+        const title = document.createElement('div');
+        title.className = 'date-group-title';
+        
+        const targetDate = new Date(dateKey).setHours(0,0,0,0);
+        const today = new Date().setHours(0,0,0,0);
+        const yesterday = new Date(today).setDate(new Date().getDate() - 1);
+        
+        if(targetDate === today) title.textContent = "Today";
+        else if(targetDate === yesterday) title.textContent = "Yesterday";
+        else title.textContent = new Date(dateKey).toLocaleDateString('en-SG', {day:'numeric', month:'short', year:'numeric'});
+        
+        feed.appendChild(title);
+
+        grouped[dateKey].reverse().forEach(row => {
+          const card = document.createElement('div');
+          card.className = 'tx-card-row';
+          if(String(row[0]).startsWith("temp_")) { card.style.opacity = "0.5"; }
+
+          const emoji = EMOJI_MAP[row[6]] || "💵";
+          const payer = row[4] === "CYO" ? "布布" : "一二";
+          
+          card.innerHTML = `
+            <div class="tx-card-left">
+              <div class="tx-icon-wrapper">${emoji}</div>
+              <div class="tx-meta">
+                <h4>${row[2]} ${String(row[0]).startsWith("temp_") ? "<span style='font-size:0.75rem;color:var(--accent-blue);'>🕒</span>" : ""}</h4>
+                <p>Paid by ${payer}</p>
+              </div>
+            </div>
+            <div class="tx-card-right">
+              <span class="tx-card-value">RM ${parseFloat(row[3]).toFixed(2)}</span>
+              <button class="card-trash-btn" onclick="deleteRecord('${row[0]}')">🗑️</button>
+            </div>
+          `;
+          feed.appendChild(card);
+        });
+      });
+    }
+
+    async function deleteRecord(rowId) {
+      if (String(rowId).startsWith("temp_")) return;
+      if (!confirm("Delete this entry permanently?")) return;
+      
+      dataCache.shared = dataCache.shared.filter(r => r[0] !== rowId);
+      calculateRunningMetrics();
+      renderFeed();
+
+      await sendToSpreadsheet({ action: "DELETE", targetTable: "Shared_Ledger", rowId: rowId });
+      showToast("Deleted.", "success");
+      syncFetch();
+    }
+
+    function showToast(text, type) {
+      const toast = document.getElementById('toast');
+      toast.textContent = text;
+      toast.className = "show";
+      setTimeout(() => toast.className = "", 2000);
+    }
+  </script>
+</body>
+</html>
