@@ -53,12 +53,14 @@
       flex-grow: 1;
     }
 
-    /* PROFILE SELECT VIEW */
+    /* PROFILE SELECT VIEW FIXED CENTERED DESIGN */
     #auth-view {
       justify-content: center;
       align-items: center;
       padding: 24px;
-      background-color: var(--bg-card);
+      background-color: var(--bg-dark);
+      text-align: center;
+      height: 100vh;
     }
 
     .pin-title {
@@ -76,15 +78,17 @@
     .user-select-container {
       display: flex;
       gap: 24px;
+      justify-content: center;
+      width: 100%;
     }
 
     .user-avatar-btn {
-      background: var(--bg-input);
+      background: var(--bg-card);
       border: 2px solid transparent;
-      border-radius: 16px;
-      width: 110px;
-      height: 110px;
-      font-size: 1rem;
+      border-radius: 20px;
+      width: 120px;
+      height: 120px;
+      font-size: 1.05rem;
       color: var(--text-main);
       font-weight: 600;
       cursor: pointer;
@@ -92,7 +96,8 @@
       flex-direction: column;
       justify-content: center;
       align-items: center;
-      gap: 8px;
+      gap: 10px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
       transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
     }
 
@@ -421,22 +426,24 @@
 
   <div class="app-container">
     
+    <!-- ONE-TAP PROFILE SELECT SCREEN -->
     <div id="auth-view" class="view-section active">
       <h2 class="pin-title">Who is recording?</h2>
       <p class="pin-subtitle">Tap profile to open ledger</p>
       
       <div class="user-select-container">
         <button class="user-avatar-btn" id="avatar-CYO" onclick="loginUser('CYO')">
-          <span style="font-size: 2.5rem;">🐻</span>
-          <span style="margin-top:4px;">Bubu</span>
+          <span style="font-size: 2.8rem;">🐻</span>
+          <span>Bubu</span>
         </button>
         <button class="user-avatar-btn" id="avatar-LKS" onclick="loginUser('LKS')">
-          <span style="font-size: 2.5rem;">🐼</span>
-          <span style="margin-top:4px;">Yier</span>
+          <span style="font-size: 2.8rem;">🐼</span>
+          <span>Yier</span>
         </button>
       </div>
     </div>
 
+    <!-- MAIN INTERFACE VIEW -->
     <div id="main-view" class="view-section">
       <div class="tricount-header">
         <button class="switch-profile-badge" onclick="logoutToProfiles()">🔄 Switch</button>
@@ -460,6 +467,7 @@
         </div>
       </div>
 
+      <!-- Content Scroll Feeds -->
       <div class="content-scroll-zone" id="sub-view-expenses"></div>
 
       <div class="content-scroll-zone" id="sub-view-balances" style="display: none;">
@@ -477,6 +485,7 @@
         </div>
       </div>
 
+      <!-- FAB BUTTON -->
       <div class="floating-action-anchor">
         <button class="fab-btn" onclick="openDrawer()">
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="3" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
@@ -486,6 +495,7 @@
 
   </div>
 
+  <!-- SLIDING MODAL DRAWER POPUP WINDOW -->
   <div class="modal-bottom-drawer" id="entry-drawer" onclick="closeDrawerViaBackdrop(event)">
     <div class="drawer-surface">
       <div class="drawer-header">
@@ -493,12 +503,14 @@
         <button class="drawer-close-btn" type="button" onclick="closeDrawer()">Cancel</button>
       </div>
 
+      <!-- Ledger Source Picker Switch Tab Segment -->
       <div class="tricount-tabs" style="max-width:100%; margin-bottom:20px;">
         <button class="tri-tab active" id="form-tab-shared" type="button" onclick="setFormTable('Shared_Ledger')">Joint Ledger</button>
         <button class="tri-tab" id="form-tab-private" type="button" onclick="setFormTable('Private_Ledger')">Private Vault</button>
       </div>
 
       <form id="ledger-form" onsubmit="handleFormSubmit(event)">
+        <!-- WHO PAID TOGGLE -->
         <div class="form-group" id="payer-toggle-group">
           <label>Who Paid?</label>
           <div class="tricount-tabs" style="max-width:100%; margin-top:6px; background-color: var(--bg-dark); padding: 4px;">
@@ -535,7 +547,7 @@
   <div id="toast"></div>
 
   <script>
-    // Paste your Google Sheet Apps Script macro URL here
+    // System Deployment Link Locked In
     const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbyRwnAE-rROX1rxbZZngG_G3HaR2cUl-84eYQhcoOpSo9EqSrwwXpaDFYlo40cZ4SF7/exec";
 
     let selectedUserCode = "";
@@ -562,7 +574,6 @@
 
     document.getElementById('tx-date').valueAsDate = new Date();
 
-    // Frictionless instantaneous login selector 
     function loginUser(userCode) {
       selectedUserCode = userCode;
       document.getElementById('header-avatar').textContent = userCode === "CYO" ? "🐻" : "🐼";
@@ -629,7 +640,6 @@
       }
     }
 
-    // INSTANT OPTIMISTIC UI RENDER
     async function handleFormSubmit(e) {
       e.preventDefault();
       
