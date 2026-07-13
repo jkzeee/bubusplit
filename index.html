@@ -419,19 +419,23 @@
     // Paste your exact Web App URL inside the quotes below!
     const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbyRwnAE-rROX1rxbZZngG_G3HaR2cUl-84eYQhcoOpSo9EqSrwwXpaDFYlo40cZ4SF7/exec";
 
+    // ==========================================
+    // PIN ENTRY & USER SECURITY INTERFACE CODES
+    // ==========================================
+    
     // Mapped PIN definitions
     const USER_PINS = {
       "CYO": "111111", // Bubu
       "LKS": "222222"  // Yier
     };
-
+    
     let selectedUserCode = "";
     let currentPinInput = "";
     let currentTab = "Shared_Ledger";
     let dataCache = { shared: [], private: [] };
-
+    
     document.getElementById('tx-date').valueAsDate = new Date();
-
+    
     // BACKWARD COMPATIBLE SYSTEM FUNCTIONS
     function selectUser(userCode, element) {
       selectedUserCode = userCode;
@@ -443,7 +447,7 @@
       }
       clearPin();
     }
-
+    
     function pressPin(num) {
       if (!selectedUserCode) {
         showToast("Select a profile first!", "danger");
@@ -457,25 +461,27 @@
       }
       
       updatePinDots();
-
+    
       if (currentPinInput.length === 6) {
         setTimeout(verifySecurityPin, 150);
       }
     }
-
+    
     function clearPin() {
       currentPinInput = "";
       updatePinDots();
     }
-
+    
     function updatePinDots() {
       for (let i = 0; i < 6; i++) {
         const dot = document.getElementById(`dot-${i}`);
-        if (i < currentPinInput.length) dot.classList.add('filled');
-        else dot.classList.remove('filled');
+        if (dot) {
+          if (i < currentPinInput.length) dot.classList.add('filled');
+          else dot.classList.remove('filled');
+        }
       }
     }
-
+    
     function verifySecurityPin() {
       if (USER_PINS[selectedUserCode] === currentPinInput) {
         const nameDisplay = selectedUserCode === "CYO" ? "Bubu 🐻" : "Yier 🐼";
@@ -491,7 +497,7 @@
         clearPin();
       }
     }
-
+    
     // Dynamic Category List Switcher
     function switchTab(targetTable) {
       currentTab = targetTable;
@@ -545,47 +551,55 @@
         payload.operator = selectedUserCode;
       }
 
-// Upgraded Connection Module using JSONP Pipeline to bypass CORS restrictions
-async function sendToSpreadsheet(payload) {
-  return new Promise((resolve) => {
-    // Generate a unique fallback handler id for this specific transaction request
-    const callbackName = "jsonp_" + Math.round(Math.random() * 1000000);
+    // ==========================================
+    // UPGRADED CONNECTION & CORE HANDLERS MODULE
+    // ==========================================
     
-    // Attach temporary listener to the global window space
-    window[callbackName] = function(data) {
-      delete window[callbackName];
-      document.body.removeChild(script);
-      resolve(data);
-    };
-
-    // Serialize payload variables alongside callback anchor directly into request parameters
-    const encodedPayload = encodeURIComponent(JSON.stringify(payload));
-    const script = document.createElement("script");
-    script.src = `${WEB_APP_URL}?callback=${callbackName}&prefix=${callbackName}&data=${encodedPayload}`;
+    // Upgraded Connection Module using JSONP Pipeline to bypass CORS restrictions
+    async function sendToSpreadsheet(payload) {
+      return new Promise((resolve) => {
+        // Generate a unique fallback handler id for this specific transaction request
+        const callbackName = "jsonp_" + Math.round(Math.random() * 1000000);
+        
+        // Attach temporary listener to the global window space
+        window[callbackName] = function(data) {
+          delete window[callbackName];
+          try { document.body.removeChild(script); } catch(e){}
+          resolve(data);
+        };
     
-    // Inject node directly into DOM to fire cross-origin request safely
-    script.onerror = function() {
-      if(window[callbackName]) delete window[callbackName];
-      try { document.body.removeChild(script); } catch(e){}
-      resolve(null);
-    };
-    
-    document.body.appendChild(script);
-  });
-}
+        // Serialize payload variables alongside callback anchor directly into request parameters
+        const encodedPayload = encodeURIComponent(JSON.stringify(payload));
+        const script = document.createElement("script");
+        script.src = `${WEB_APP_URL}?callback=${callbackName}&prefix=${callbackName}&data=${encodedPayload}`;
+        
+        // Inject node directly into DOM to fire cross-origin request safely
+        script.onerror = function() {
+          if(window[callbackName]) delete window[callbackName];
+          try { document.body.removeChild(script); } catch(e){}
+          resolve(null);
+        };
+        
+        document.body.appendChild(script);
+      });
+    }
 
-// Optimized Sync Fetch to refresh local interface states instantly
-async function syncFetch() {
-  const response = await sendToSpreadsheet({ action: "READ", operator: selectedUserCode });
-  if (response && response.status === "success") {
-    dataCache.shared = response.shared || [];
-    dataCache.private = response.private || [];
-    renderFeed();
-  } else {
-    showToast("History data sync unavailable", "danger");
-  }
-}
-
+    // Optimized Sync Fetch to refresh local interface states instantly
+    async function syncFetch() {
+      try {
+        const response = await sendToSpreadsheet({ action: "READ", operator: selectedUserCode });
+        if (response && response.status === "success") {
+          dataCache.shared = response.shared || [];
+          dataCache.private = response.private || [];
+          renderFeed();
+        } else {
+          showToast("History data sync unavailable", "danger");
+        }
+      } catch (err) {
+        showToast("Network fetch failed", "danger");
+      }
+    }
+      
     function renderFeed() {
       const feed = document.getElementById('transaction-feed');
       feed.innerHTML = "";
