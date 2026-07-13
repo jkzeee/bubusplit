@@ -614,7 +614,7 @@
     let currentSubView = "expenses"; 
     let dataCache = { shared: [], private: [] };
 
-    // Emoji Mapping Engine for Feed Decorators
+    // Fallback dictionary until the Sheet Keyword Database is wired up next
     const EMOJI_MAP = {
       "Food & Groceries": "🍲", "Personal Food": "🍲",
       "House Rent": "🏠", "Utilities & Subscriptions": "🔌",
@@ -659,7 +659,7 @@
         document.getElementById('header-avatar').textContent = selectedUserCode === "CYO" ? "🐻" : "🐼";
         document.getElementById('auth-view').classList.remove('active');
         document.getElementById('main-view').classList.add('active');
-        setFormTable('Shared_Ledger'); // Prepopulate dropdown categories list
+        setFormTable('Shared_Ledger');
         syncFetch();
       } else {
         showToast("Incorrect Security PIN!", "danger");
@@ -696,34 +696,65 @@
     function closeDrawer() { document.getElementById('entry-drawer').classList.remove('open'); }
     function closeDrawerViaBackdrop(e) { if(e.target.id === 'entry-drawer') closeDrawer(); }
 
+    // OPTIMISTIC UI ENGINE (INSTANT RENDERING)
     async function handleFormSubmit(e) {
       e.preventDefault();
-      const submitBtn = document.getElementById('form-submit-btn');
-      submitBtn.disabled = true;
-      submitBtn.textContent = "Syncing...";
+      
+      const inputDate = document.getElementById('tx-date').value;
+      const inputDesc = document.getElementById('tx-desc').value;
+      const inputAmount = parseFloat(document.getElementById('tx-amount').value) || 0;
+      const inputCategory = document.getElementById('tx-category').value;
+      
+      // 1. Create temporary optimistic object layout
+      const tempId = "temp_" + Date.now();
+      const tempRow = [
+        tempId, 
+        inputDate, 
+        inputDesc, 
+        inputAmount, 
+        selectedUserCode, 
+        "Equally", 
+        inputCategory
+      ];
 
+      // 2. Instantly push to local cache data state & recalculate UI elements
+      if (currentTab === "Shared_Ledger") {
+        dataCache.shared.push(tempRow);
+      } else {
+        const flowType = document.getElementById('tx-flow').value;
+        dataCache.private.push([tempId, inputDate, inputDesc, inputAmount, selectedUserCode, flowType, inputCategory]);
+      }
+
+      // 3. Render immediately to UI display layout frames
+      calculateRunningMetrics();
+      renderFeed();
+      closeDrawer();
+      showToast("Entry Added!", "success");
+
+      // Reset form variables safely
+      document.getElementById('tx-desc').value = "";
+      document.getElementById('tx-amount').value = "";
+
+      // 4. Fire network sync completely in background thread execution
       let payload = {
         action: "CREATE",
         targetTable: currentTab,
-        date: document.getElementById('tx-date').value,
-        description: document.getElementById('tx-desc').value,
-        amount: document.getElementById('tx-amount').value,
-        category: document.getElementById('tx-category').value
+        date: inputDate,
+        description: inputDesc,
+        amount: inputAmount,
+        category: inputCategory
       };
 
       if (currentTab === "Shared_Ledger") { payload.paidBy = selectedUserCode; } 
       else { payload.flowType = document.getElementById('tx-flow').value; payload.operator = selectedUserCode; }
 
-      await sendToSpreadsheet(payload);
-      showToast("Synced!", "success");
+      const response = await sendToSpreadsheet(payload);
       
-      document.getElementById('tx-desc').value = "";
-      document.getElementById('tx-amount').value = "";
-      submitBtn.disabled = false;
-      submitBtn.textContent = "Save Entry";
-      
-      closeDrawer();
-      syncFetch();
+      // Quietly swap temp data out for official database payload sync frames
+      if (!response || response.status !== "success") {
+        showToast("Sync Background Fail!", "danger");
+      }
+      syncFetch(); 
     }
 
     async function sendToSpreadsheet(payload) {
@@ -755,7 +786,7 @@
           calculateRunningMetrics();
           renderFeed();
         }
-      } catch (err) { showToast("Sync issue", "danger"); }
+      } catch (err) { console.log("Sync issue caught."); }
     }
 
     function calculateRunningMetrics() {
@@ -773,11 +804,9 @@
         if(row[5] === "Expense") privateExp += (parseFloat(row[3]) || 0);
       });
 
-      // Display Top Banner Financial Engine
       document.getElementById('val-total-expenses').textContent = `RM ${totalShared.toFixed(2)}`;
-      document.getElementById('val-my-expenses').textContent = `RM ${(bubuPaid + privateExp).toFixed(2)}`;
+      document.getElementById('val-my-expenses').textContent = `RM ${(selectedUserCode === "CYO" ? bubuPaid : yierPaid + privateExp).toFixed(2)}`;
 
-      // Display Balance Settlements Tab Elements
       document.getElementById('bal-bubu-paid').textContent = `RM ${bubuPaid.toFixed(2)}`;
       document.getElementById('bal-yier-paid').textContent = `RM ${yierPaid.toFixed(2)}`;
       
@@ -785,8 +814,10 @@
       const sentence = document.getElementById('settlement-sentence');
       if (bubuPaid > fairShare) {
         sentence.textContent = `Yier 🐼 owes Bubu 🐻 RM ${(bubuPaid - fairShare).toFixed(2)}`;
+      } else if (yierPaid > fairShare) {
+        sentence.textContent = `Bubu 🐻 owes Yier 🐼 RM ${(yierPaid - fairShare).toFixed(2)}`;
       } else {
-        sentence.textContent = `Bubu 🐻 owes Yier 🐼 RM ${(fairShare - bubuPaid).toFixed(2)}`;
+        sentence.textContent = `Settled up perfectly!`;
       }
     }
 
@@ -795,13 +826,12 @@
       if (currentSubView !== 'expenses') return;
       feed.innerHTML = "";
       
-      const rows = dataCache.shared; // Follows Tricount primary shared expense activity layout
+      const rows = dataCache.shared; 
       if (!rows || rows.length === 0) {
         feed.innerHTML = `<p style="text-align:center;color:var(--text-muted);font-size:0.9rem;padding:40px 16px;">No recent expenses tracked.</p>`;
         return;
       }
 
-      // Group activities cleanly by Date
       const grouped = {};
       rows.forEach(row => {
         const dateStr = row[1];
@@ -813,7 +843,6 @@
         const title = document.createElement('div');
         title.className = 'date-group-title';
         
-        // Convert to smart headings like "Today" / "Yesterday"
         const targetDate = new Date(dateKey).setHours(0,0,0,0);
         const today = new Date().setHours(0,0,0,0);
         const yesterday = new Date(today).setDate(new Date().getDate() - 1);
@@ -827,14 +856,18 @@
         grouped[dateKey].reverse().forEach(row => {
           const card = document.createElement('div');
           card.className = 'tx-card-row';
-          const emoji = EMOJI_MAP[row[6]] || "📝";
-          const payer = row[4] === "CYO" ? "布布 (me)" : "一二";
+          
+          // Apply continuous syncing styling indicators if entry is local optimistic draft
+          if(String(row[0]).startsWith("temp_")) { card.style.opacity = "0.5"; }
+
+          const emoji = EMOJI_MAP[row[6]] || "💵";
+          const payer = row[4] === "CYO" ? "布布" : "一二";
           
           card.innerHTML = `
             <div class="tx-card-left">
               <div class="tx-icon-wrapper">${emoji}</div>
               <div class="tx-meta">
-                <h4>${row[2]}</h4>
+                <h4>${row[2]} ${String(row[0]).startsWith("temp_") ? "<span style='font-size:0.75rem;color:var(--accent-blue);font-weight:400;'>🕒</span>" : ""}</h4>
                 <p>Paid by ${payer}</p>
               </div>
             </div>
@@ -849,7 +882,14 @@
     }
 
     async function deleteRecord(rowId) {
+      if (String(rowId).startsWith("temp_")) return;
       if (!confirm("Delete this entry permanently?")) return;
+      
+      // Optimistic delete display engine loop
+      dataCache.shared = dataCache.shared.filter(r => r[0] !== rowId);
+      calculateRunningMetrics();
+      renderFeed();
+
       await sendToSpreadsheet({ action: "DELETE", targetTable: "Shared_Ledger", rowId: rowId });
       showToast("Deleted.", "success");
       syncFetch();
@@ -858,8 +898,8 @@
     function showToast(text, type) {
       const toast = document.getElementById('toast');
       toast.textContent = text;
-      toast.classList.add('show');
-      setTimeout(() => toast.classList.remove('show'), 2000);
+      toast.className = "show";
+      setTimeout(() => toast.className = "", 2000);
     }
   </script>
 </body>
