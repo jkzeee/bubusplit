@@ -790,36 +790,44 @@
     }
 
     function calculateRunningMetrics() {
-      let totalShared = 0, bubuPaid = 0, yierPaid = 0;
-      
-      dataCache.shared.forEach(row => {
-        const amt = parseFloat(row[3]) || 0;
-        totalShared += amt;
-        if(row[4] === "CYO") bubuPaid += amt;
-        if(row[4] === "LKS") yierPaid += amt;
-      });
-
-      let privateExp = 0;
-      dataCache.private.forEach(row => {
-        if(row[5] === "Expense") privateExp += (parseFloat(row[3]) || 0);
-      });
-
-      document.getElementById('val-total-expenses').textContent = `RM ${totalShared.toFixed(2)}`;
-      document.getElementById('val-my-expenses').textContent = `RM ${(selectedUserCode === "CYO" ? bubuPaid : yierPaid + privateExp).toFixed(2)}`;
-
-      document.getElementById('bal-bubu-paid').textContent = `RM ${bubuPaid.toFixed(2)}`;
-      document.getElementById('bal-yier-paid').textContent = `RM ${yierPaid.toFixed(2)}`;
-      
-      const fairShare = totalShared / 2;
-      const sentence = document.getElementById('settlement-sentence');
-      if (bubuPaid > fairShare) {
-        sentence.textContent = `Yier 🐼 owes Bubu 🐻 RM ${(bubuPaid - fairShare).toFixed(2)}`;
-      } else if (yierPaid > fairShare) {
-        sentence.textContent = `Bubu 🐻 owes Yier 🐼 RM ${(yierPaid - fairShare).toFixed(2)}`;
-      } else {
-        sentence.textContent = `Settled up perfectly!`;
-      }
-    }
+          let totalShared = 0, bubuPaid = 0, yierPaid = 0;
+          
+          // 1. Calculate joint totals
+          dataCache.shared.forEach(row => {
+            const amt = parseFloat(row[3]) || 0;
+            totalShared += amt;
+            if(row[4] === "CYO") bubuPaid += amt;
+            if(row[4] === "LKS") yierPaid += amt;
+          });
+    
+          // 2. Calculate private outlays (skipping income streams)
+          let privateExp = 0;
+          dataCache.private.forEach(row => {
+            if(row[5] === "Expense") {
+              privateExp += (parseFloat(row[3]) || 0);
+            }
+          });
+    
+          // 3. Compute the true 50-50 fair share split
+          const fairShareOfShared = totalShared / 2;
+    
+          // 4. Update the Top Display Banner Metrics
+          document.getElementById('val-total-expenses').textContent = `RM ${totalShared.toFixed(2)}`;
+          document.getElementById('val-my-expenses').textContent = `RM ${(privateExp + fairShareOfShared).toFixed(2)}`;
+    
+          // 5. Update the Settlement Sentence Contexts
+          document.getElementById('bal-bubu-paid').textContent = `RM ${bubuPaid.toFixed(2)}`;
+          document.getElementById('bal-yier-paid').textContent = `RM ${yierPaid.toFixed(2)}`;
+          
+          const sentence = document.getElementById('settlement-sentence');
+          if (bubuPaid > fairShareOfShared) {
+            sentence.textContent = `Yier 🐼 owes Bubu 🐻 RM ${(bubuPaid - fairShareOfShared).toFixed(2)}`;
+          } else if (yierPaid > fairShareOfShared) {
+            sentence.textContent = `Bubu 🐻 owes Yier 🐼 RM ${(yierPaid - fairShareOfShared).toFixed(2)}`;
+          } else {
+            sentence.textContent = `Settled up perfectly!`;
+          }
+        }
 
     function renderFeed() {
       const feed = document.getElementById('sub-view-expenses');
