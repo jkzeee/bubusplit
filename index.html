@@ -41,7 +41,7 @@
       display: flex;
       flex-direction: column;
       min-height: 100vh;
-      padding-bottom: 100px; /* Space for FAB */
+      padding-bottom: 100px;
     }
 
     .view-section {
@@ -53,9 +53,7 @@
       flex-grow: 1;
     }
 
-    /* ==========================================
-       AUTH VIEW (LOCK SCREEN) LOOK & FEEL
-       ========================================== */
+    /* AUTH VIEW (LOCK SCREEN) */
     #auth-view {
       justify-content: center;
       align-items: center;
@@ -154,9 +152,7 @@
       background-color: var(--bg-pill);
     }
 
-    /* ==========================================
-       TRICOUNT OVERHAUL DESIGN SPECIFICATIONS
-       ========================================== */
+    /* MAIN VIEW HEADER DESIGN */
     .tricount-header {
       padding: 24px 16px 16px 16px;
       text-align: center;
@@ -176,7 +172,6 @@
       margin-bottom: 20px;
     }
 
-    /* Native Pill Sub-Navigation Tab Wrappers */
     .tricount-tabs {
       display: flex;
       background-color: var(--bg-input);
@@ -205,7 +200,6 @@
       color: var(--text-main);
     }
 
-    /* Metric Performance Summary Layer */
     .metrics-summary-bar {
       display: flex;
       justify-content: space-around;
@@ -231,7 +225,7 @@
       font-weight: 700;
     }
 
-    /* Scrollable Activity Card Feeds */
+    /* TRANSACTION FEEDS & CARDS */
     .content-scroll-zone {
       padding: 0 16px;
       display: flex;
@@ -295,7 +289,6 @@
       font-size: 1.05rem;
       font-weight: 700;
     }
-    .tx-card-value.income { color: var(--success-green); }
 
     .card-trash-btn {
       background: none;
@@ -306,7 +299,7 @@
       padding: 4px;
     }
 
-    /* Balance Calculator Layout View */
+    /* BALANCES TEMPORARY CONTAINER */
     .balance-card-box {
       background-color: var(--bg-card);
       border-radius: 16px;
@@ -325,9 +318,7 @@
       line-height: 1.4;
     }
 
-    /* ==========================================
-       FLOATING ACTION BUTTON & SLIDING SHEET
-       ========================================== */
+    /* FAB POSITIONING */
     .floating-action-anchor {
       position: fixed;
       bottom: 30px;
@@ -351,7 +342,7 @@
       align-items: center;
     }
 
-    /* Modal Context Drawer Block */
+    /* SLIDING POPUP SHEET MODAL LAYOUT */
     .modal-bottom-drawer {
       position: fixed;
       top: 0;
@@ -463,6 +454,7 @@
 
   <div class="app-container">
     
+    <!-- LOCK SCREEN VIEW -->
     <div id="auth-view" class="view-section active">
       <h2 class="pin-title">Welcome Back</h2>
       <p class="pin-subtitle">Select profile and enter 6-digit PIN</p>
@@ -503,6 +495,7 @@
       </div>
     </div>
 
+    <!-- MAIN INTERFACE VIEW -->
     <div id="main-view" class="view-section">
       <div class="tricount-header">
         <div class="avatar-main" id="header-avatar">🐻</div>
@@ -525,8 +518,8 @@
         </div>
       </div>
 
-      <div class="content-scroll-zone" id="sub-view-expenses">
-        </div>
+      <!-- Content Scroll Feeds -->
+      <div class="content-scroll-zone" id="sub-view-expenses"></div>
 
       <div class="content-scroll-zone" id="sub-view-balances" style="display: none;">
         <div class="balance-card-box">
@@ -539,10 +532,11 @@
             <span id="bal-yier-paid" style="font-weight:700;">RM 0.00</span>
           </div>
           <hr style="border:0; border-top:1px solid var(--bg-pill); margin:12px 0;">
-          <div class="settlement-alert" id="settlement-sentence">Calculating share equations...</div>
+          <div class="settlement-alert" id="settlement-sentence">Calculating balance splits...</div>
         </div>
       </div>
 
+      <!-- FAB BUTTON -->
       <div class="floating-action-anchor">
         <button class="fab-btn" onclick="openDrawer()">
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="3" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
@@ -552,12 +546,12 @@
 
   </div>
 
-<!-- SLIDING MODAL DRAWER INPUT SHEETS -->
+  <!-- SLIDING MODAL DRAWER POPUP WINDOW -->
   <div class="modal-bottom-drawer" id="entry-drawer" onclick="closeDrawerViaBackdrop(event)">
     <div class="drawer-surface">
       <div class="drawer-header">
         <h3 style="font-size: 1.2rem; font-weight:700;">Add New Transaction</h3>
-        <button class="drawer-close-btn" onclick="closeDrawer()">Cancel</button>
+        <button class="drawer-close-btn" type="button" onclick="closeDrawer()">Cancel</button>
       </div>
 
       <!-- Ledger Source Picker Switch Tab Segment -->
@@ -567,10 +561,10 @@
       </div>
 
       <form id="ledger-form" onsubmit="handleFormSubmit(event)">
-        <!-- WHO PAID TOGGLE (Only shows for Joint Ledger) -->
+        <!-- WHO PAID TOGGLE -->
         <div class="form-group" id="payer-toggle-group">
           <label>Who Paid?</label>
-          <div class="tricount-tabs" style="max-width:100%; margin-top:4px; background-color: var(--bg-dark);">
+          <div class="tricount-tabs" style="max-width:100%; margin-top:6px; background-color: var(--bg-dark); padding: 4px;">
             <button class="tri-tab" id="payer-btn-CYO" type="button" onclick="setFormPayer('CYO')">🐻 布布</button>
             <button class="tri-tab" id="payer-btn-LKS" type="button" onclick="setFormPayer('LKS')">🐼 一二</button>
           </div>
@@ -604,20 +598,20 @@
   <div id="toast"></div>
 
   <script>
-    const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbyRwnAE-rROX1rxbZZngG_G3HaR2cUl-84eYQhcoOpSo9EqSrwwXpaDFYlo40cZ4SF7/exec";
+    const WEB_APP_URL = "YOUR_DEPLOYED_WEB_APP_URL";
 
     const USER_PINS = {
-      "CYO": "111111", // Bubu
-      "LKS": "222222"  // Yier
+      "CYO": "111111", 
+      "LKS": "222222"  
     };
 
     let selectedUserCode = "";
     let currentPinInput = "";
     let currentTab = "Shared_Ledger"; 
     let currentSubView = "expenses"; 
+    let formSelectedPayer = ""; 
     let dataCache = { shared: [], private: [] };
 
-    // Fallback dictionary until the Sheet Keyword Database is wired up next
     const EMOJI_MAP = {
       "Food & Groceries": "🍲", "Personal Food": "🍲",
       "House Rent": "🏠", "Utilities & Subscriptions": "🔌",
@@ -626,6 +620,12 @@
       "Car Loan": "🚗", "Petrol & Tolls": "⛽",
       "Car Maintenance": "🔧", "Insurance": "🛡️",
       "Savings & Investments": "💰", "Others (Shared)": "📦", "Others (Personal)": "📦"
+    };
+
+    const PRIVATE_CATEGORIES = {
+      "Government Salary": "Income", "Locum Income": "Income", "Investment Inflow": "Income", "Others (Income)": "Income",
+      "Personal Food": "Expense", "Car Loan": "Expense", "Petrol & Tolls": "Expense", "Car Maintenance": "Expense",
+      "Insurance": "Expense", "Savings & Investments": "Expense", "Utilities & Subscriptions": "Expense", "Others (Personal)": "Expense"
     };
 
     document.getElementById('tx-date').valueAsDate = new Date();
@@ -679,36 +679,28 @@
       renderFeed();
     }
 
-let formSelectedPayer = ""; // Track who paid inside the form context
-
-    // Category mappings with implicit flow assignments for Private Vault
-    const PRIVATE_CATEGORIES = {
-      // Income streams (Inflow)
-      "Government Salary": "Income",
-      "Locum Income": "Income",
-      "Investment Inflow": "Income",
-      "Others (Income)": "Income",
-      // Expense streams (Outflow)
-      "Personal Food": "Expense",
-      "Car Loan": "Expense",
-      "Petrol & Tolls": "Expense",
-      "Car Maintenance": "Expense",
-      "Insurance": "Expense",
-      "Savings & Investments": "Expense",
-      "Utilities & Subscriptions": "Expense",
-      "Others (Personal)": "Expense"
-    };
-
     function openDrawer() { 
-      // Automatically default the form's payer to whoever is currently logged into the app
       setFormPayer(selectedUserCode);
+      setFormTable('Shared_Ledger');
       document.getElementById('entry-drawer').classList.add('open'); 
+    }
+
+    function closeDrawer() { 
+      document.getElementById('entry-drawer').classList.remove('open'); 
+    }
+
+    function closeDrawerViaBackdrop(e) { 
+      if(e.target.id === 'entry-drawer') closeDrawer(); 
     }
 
     function setFormPayer(payerCode) {
       formSelectedPayer = payerCode;
-      document.getElementById('payer-btn-CYO').classList.toggle('active', payerCode === 'CYO');
-      document.getElementById('payer-btn-LKS').classList.toggle('active', payerCode === 'LKS');
+      const bubuBtn = document.getElementById('payer-btn-CYO');
+      const yierBtn = document.getElementById('payer-btn-LKS');
+      if(bubuBtn && yierBtn) {
+        bubuBtn.classList.toggle('active', payerCode === 'CYO');
+        yierBtn.classList.toggle('active', payerCode === 'LKS');
+      }
     }
 
     function setFormTable(targetTable) {
@@ -716,7 +708,6 @@ let formSelectedPayer = ""; // Track who paid inside the form context
       document.getElementById('form-tab-shared').classList.toggle('active', targetTable === 'Shared_Ledger');
       document.getElementById('form-tab-private').classList.toggle('active', targetTable === 'Private_Ledger');
       
-      // Dynamic visibility rules for the "Who Paid" selector toggle
       document.getElementById('payer-toggle-group').style.display = targetTable === 'Shared_Ledger' ? 'block' : 'none';
       
       const catSelect = document.getElementById('tx-category');
@@ -726,12 +717,11 @@ let formSelectedPayer = ""; // Track who paid inside the form context
         const sharedOptions = ["Food & Groceries", "House Rent", "Utilities & Subscriptions", "Outing / Dates", "Shared Projects / Goals", "Others (Shared)"];
         sharedOptions.forEach(opt => catSelect.add(new Option(opt, opt)));
       } else {
-        // Populate seamlessly with both Income and Expenses combined
         Object.keys(PRIVATE_CATEGORIES).forEach(opt => catSelect.add(new Option(opt, opt)));
       }
     }
 
-    // UPDATED INSTANT OPTIMISTIC FORM HANDLING ENGINE
+    // INSTANT OPTIMISTIC UI RENDER
     async function handleFormSubmit(e) {
       e.preventDefault();
       
@@ -742,44 +732,21 @@ let formSelectedPayer = ""; // Track who paid inside the form context
       
       const tempId = "temp_" + Date.now();
       
-      // Compute flows and structures optimistically
       if (currentTab === "Shared_Ledger") {
-        const tempRow = [
-          tempId, 
-          inputDate, 
-          inputDesc, 
-          inputAmount, 
-          formSelectedPayer, // Uses the selected toggle value instead of forcing logged-in user
-          "Equally", 
-          inputCategory
-        ];
-        dataCache.shared.push(tempRow);
+        dataCache.shared.push([tempId, inputDate, inputDesc, inputAmount, formSelectedPayer, "Equally", inputCategory]);
       } else {
-        // Smart auto-assign: lookup category type automatically
         const flowType = PRIVATE_CATEGORIES[inputCategory] || "Expense";
-        const tempRow = [
-          tempId,
-          inputDate,
-          inputDesc,
-          inputAmount,
-          selectedUserCode,
-          flowType, // Automatically assigned behind the scenes
-          inputCategory
-        ];
-        dataCache.private.push(tempRow);
+        dataCache.private.push([tempId, inputDate, inputDesc, inputAmount, selectedUserCode, flowType, inputCategory]);
       }
 
-      // Refresh UI instantly
       calculateRunningMetrics();
       renderFeed();
       closeDrawer();
       showToast("Entry Added!", "success");
 
-      // Reset fields
       document.getElementById('tx-desc').value = "";
       document.getElementById('tx-amount').value = "";
 
-      // Construct background sync payload
       let payload = {
         action: "CREATE",
         targetTable: currentTab,
@@ -796,7 +763,6 @@ let formSelectedPayer = ""; // Track who paid inside the form context
         payload.operator = selectedUserCode; 
       }
 
-      // Fire network sync completely in background thread execution
       const response = await sendToSpreadsheet(payload);
       if (!response || response.status !== "success") {
         showToast("Sync Background Fail!", "danger");
@@ -837,44 +803,37 @@ let formSelectedPayer = ""; // Track who paid inside the form context
     }
 
     function calculateRunningMetrics() {
-          let totalShared = 0, bubuPaid = 0, yierPaid = 0;
-          
-          // 1. Calculate joint totals
-          dataCache.shared.forEach(row => {
-            const amt = parseFloat(row[3]) || 0;
-            totalShared += amt;
-            if(row[4] === "CYO") bubuPaid += amt;
-            if(row[4] === "LKS") yierPaid += amt;
-          });
-    
-          // 2. Calculate private outlays (skipping income streams)
-          let privateExp = 0;
-          dataCache.private.forEach(row => {
-            if(row[5] === "Expense") {
-              privateExp += (parseFloat(row[3]) || 0);
-            }
-          });
-    
-          // 3. Compute the true 50-50 fair share split
-          const fairShareOfShared = totalShared / 2;
-    
-          // 4. Update the Top Display Banner Metrics
-          document.getElementById('val-total-expenses').textContent = `RM ${totalShared.toFixed(2)}`;
-          document.getElementById('val-my-expenses').textContent = `RM ${(privateExp + fairShareOfShared).toFixed(2)}`;
-    
-          // 5. Update the Settlement Sentence Contexts
-          document.getElementById('bal-bubu-paid').textContent = `RM ${bubuPaid.toFixed(2)}`;
-          document.getElementById('bal-yier-paid').textContent = `RM ${yierPaid.toFixed(2)}`;
-          
-          const sentence = document.getElementById('settlement-sentence');
-          if (bubuPaid > fairShareOfShared) {
-            sentence.textContent = `Yier 🐼 owes Bubu 🐻 RM ${(bubuPaid - fairShareOfShared).toFixed(2)}`;
-          } else if (yierPaid > fairShareOfShared) {
-            sentence.textContent = `Bubu 🐻 owes Yier 🐼 RM ${(yierPaid - fairShareOfShared).toFixed(2)}`;
-          } else {
-            sentence.textContent = `Settled up perfectly!`;
-          }
-        }
+      let totalShared = 0, bubuPaid = 0, yierPaid = 0;
+      
+      dataCache.shared.forEach(row => {
+        const amt = parseFloat(row[3]) || 0;
+        totalShared += amt;
+        if(row[4] === "CYO") bubuPaid += amt;
+        if(row[4] === "LKS") yierPaid += amt;
+      });
+
+      let privateExp = 0;
+      dataCache.private.forEach(row => {
+        if(row[5] === "Expense") { privateExp += (parseFloat(row[3]) || 0); }
+      });
+
+      const fairShareOfShared = totalShared / 2;
+
+      document.getElementById('val-total-expenses').textContent = `RM ${totalShared.toFixed(2)}`;
+      document.getElementById('val-my-expenses').textContent = `RM ${(privateExp + fairShareOfShared).toFixed(2)}`;
+
+      document.getElementById('bal-bubu-paid').textContent = `RM ${bubuPaid.toFixed(2)}`;
+      document.getElementById('bal-yier-paid').textContent = `RM ${yierPaid.toFixed(2)}`;
+      
+      const sentence = document.getElementById('settlement-sentence');
+      if (bubuPaid > fairShareOfShared) {
+        sentence.textContent = `Yier 🐼 owes Bubu 🐻 RM ${(bubuPaid - fairShareOfShared).toFixed(2)}`;
+      } else if (yierPaid > fairShareOfShared) {
+        sentence.textContent = `Bubu 🐻 owes Yier 🐼 RM ${(yierPaid - fairShareOfShared).toFixed(2)}`;
+      } else {
+        sentence.textContent = `Settled up perfectly!`;
+      }
+    }
 
     function renderFeed() {
       const feed = document.getElementById('sub-view-expenses');
@@ -911,8 +870,6 @@ let formSelectedPayer = ""; // Track who paid inside the form context
         grouped[dateKey].reverse().forEach(row => {
           const card = document.createElement('div');
           card.className = 'tx-card-row';
-          
-          // Apply continuous syncing styling indicators if entry is local optimistic draft
           if(String(row[0]).startsWith("temp_")) { card.style.opacity = "0.5"; }
 
           const emoji = EMOJI_MAP[row[6]] || "💵";
@@ -922,7 +879,7 @@ let formSelectedPayer = ""; // Track who paid inside the form context
             <div class="tx-card-left">
               <div class="tx-icon-wrapper">${emoji}</div>
               <div class="tx-meta">
-                <h4>${row[2]} ${String(row[0]).startsWith("temp_") ? "<span style='font-size:0.75rem;color:var(--accent-blue);font-weight:400;'>🕒</span>" : ""}</h4>
+                <h4>${row[2]} ${String(row[0]).startsWith("temp_") ? "<span style='font-size:0.75rem;color:var(--accent-blue);'>🕒</span>" : ""}</h4>
                 <p>Paid by ${payer}</p>
               </div>
             </div>
@@ -940,7 +897,6 @@ let formSelectedPayer = ""; // Track who paid inside the form context
       if (String(rowId).startsWith("temp_")) return;
       if (!confirm("Delete this entry permanently?")) return;
       
-      // Optimistic delete display engine loop
       dataCache.shared = dataCache.shared.filter(r => r[0] !== rowId);
       calculateRunningMetrics();
       renderFeed();
