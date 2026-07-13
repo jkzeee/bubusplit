@@ -386,7 +386,6 @@
         <div class="form-group">
           <label for="tx-category">Category</label>
           <select id="tx-category" class="form-control">
-            <!-- Joint Categories Default -->
             <option value="Food & Groceries">Food & Groceries</option>
             <option value="House Rent">House Rent</option>
             <option value="Utilities & Subscriptions">Utilities & Subscriptions</option>
@@ -419,35 +418,32 @@
     // Paste your exact Web App URL inside the quotes below!
     const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbyRwnAE-rROX1rxbZZngG_G3HaR2cUl-84eYQhcoOpSo9EqSrwwXpaDFYlo40cZ4SF7/exec";
 
-    // ==========================================
-    // PIN ENTRY & USER SECURITY INTERFACE CODES
-    // ==========================================
-    
     // Mapped PIN definitions
     const USER_PINS = {
       "CYO": "111111", // Bubu
       "LKS": "222222"  // Yier
     };
-    
+
     let selectedUserCode = "";
     let currentPinInput = "";
     let currentTab = "Shared_Ledger";
     let dataCache = { shared: [], private: [] };
-    
+
     document.getElementById('tx-date').valueAsDate = new Date();
-    
-    // BACKWARD COMPATIBLE SYSTEM FUNCTIONS
+
+    // AUTH / SECURITY INTERFACE ACTIONS
     function selectUser(userCode, element) {
       selectedUserCode = userCode;
       document.querySelectorAll('.user-avatar-btn').forEach(btn => btn.classList.remove('selected'));
       if(element) {
         element.classList.add('selected');
       } else {
-        document.getElementById(`avatar-${userCode}`).classList.add('selected');
+        const tgt = document.getElementById(`avatar-${userCode}`);
+        if(tgt) tgt.classList.add('selected');
       }
       clearPin();
     }
-    
+
     function pressPin(num) {
       if (!selectedUserCode) {
         showToast("Select a profile first!", "danger");
@@ -461,17 +457,17 @@
       }
       
       updatePinDots();
-    
+
       if (currentPinInput.length === 6) {
         setTimeout(verifySecurityPin, 150);
       }
     }
-    
+
     function clearPin() {
       currentPinInput = "";
       updatePinDots();
     }
-    
+
     function updatePinDots() {
       for (let i = 0; i < 6; i++) {
         const dot = document.getElementById(`dot-${i}`);
@@ -481,7 +477,7 @@
         }
       }
     }
-    
+
     function verifySecurityPin() {
       if (USER_PINS[selectedUserCode] === currentPinInput) {
         const nameDisplay = selectedUserCode === "CYO" ? "Bubu 🐻" : "Yier 🐼";
@@ -497,7 +493,7 @@
         clearPin();
       }
     }
-    
+
     // Dynamic Category List Switcher
     function switchTab(targetTable) {
       currentTab = targetTable;
@@ -513,7 +509,6 @@
         tabPrivate.classList.remove('active');
         flowGroup.style.display = 'none';
         
-        // Populate Joint Categories
         const options = ["Food & Groceries", "House Rent", "Utilities & Subscriptions", "Outing / Dates", "Shared Projects / Goals", "Others (Shared)"];
         options.forEach(opt => catSelect.add(new Option(opt, opt)));
       } else {
@@ -521,7 +516,6 @@
         tabPrivate.classList.add('active');
         flowGroup.style.display = 'block';
         
-        // Populate Personal Categories
         const options = ["Government Salary", "Locum Income", "Car Loan", "Petrol & Tolls", "Car Maintenance", "Insurance", "Savings & Investments", "Utilities & Subscriptions", "Personal Food", "Others (Personal)"];
         options.forEach(opt => catSelect.add(new Option(opt, opt)));
       }
@@ -551,29 +545,32 @@
         payload.operator = selectedUserCode;
       }
 
-    // ==========================================
-    // UPGRADED CONNECTION & CORE HANDLERS MODULE
-    // ==========================================
-    
+      await sendToSpreadsheet(payload);
+      showToast("Transaction synced successfully!", "success");
+      
+      document.getElementById('tx-desc').value = "";
+      document.getElementById('tx-amount').value = "";
+      submitBtn.disabled = false;
+      submitBtn.textContent = "Save Entry";
+      
+      syncFetch();
+    }
+
     // Upgraded Connection Module using JSONP Pipeline to bypass CORS restrictions
     async function sendToSpreadsheet(payload) {
       return new Promise((resolve) => {
-        // Generate a unique fallback handler id for this specific transaction request
         const callbackName = "jsonp_" + Math.round(Math.random() * 1000000);
         
-        // Attach temporary listener to the global window space
         window[callbackName] = function(data) {
           delete window[callbackName];
           try { document.body.removeChild(script); } catch(e){}
           resolve(data);
         };
-    
-        // Serialize payload variables alongside callback anchor directly into request parameters
+
         const encodedPayload = encodeURIComponent(JSON.stringify(payload));
         const script = document.createElement("script");
         script.src = `${WEB_APP_URL}?callback=${callbackName}&prefix=${callbackName}&data=${encodedPayload}`;
         
-        // Inject node directly into DOM to fire cross-origin request safely
         script.onerror = function() {
           if(window[callbackName]) delete window[callbackName];
           try { document.body.removeChild(script); } catch(e){}
@@ -584,7 +581,6 @@
       });
     }
 
-    // Optimized Sync Fetch to refresh local interface states instantly
     async function syncFetch() {
       try {
         const response = await sendToSpreadsheet({ action: "READ", operator: selectedUserCode });
@@ -599,7 +595,7 @@
         showToast("Network fetch failed", "danger");
       }
     }
-      
+
     function renderFeed() {
       const feed = document.getElementById('transaction-feed');
       feed.innerHTML = "";
@@ -643,20 +639,6 @@
       await sendToSpreadsheet({ action: "DELETE", targetTable: currentTab, rowId: rowId });
       showToast("Entry deleted.", "success");
       syncFetch();
-    }
-
-    async function sendToSpreadsheet(payload) {
-      try {
-        const res = await fetch(WEB_APP_URL, {
-          method: "POST",
-          mode: "no-cors",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(payload)
-        });
-        return { status: "success" };
-      } catch (err) {
-        return null;
-      }
     }
 
     function showToast(text, type) {
