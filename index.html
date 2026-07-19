@@ -32,10 +32,9 @@
       display: flex;
       justify-content: center;
       min-height: 100vh;
-      /* Replaced overflow: hidden with auto to allow standalone wrappers to negotiate touch event pass-throughs */
       overflow: auto; 
     }
-    
+
     .app-container {
       width: 100%;
       max-width: 440px;
@@ -44,43 +43,11 @@
       display: flex;
       flex-direction: column;
       height: 100vh;
-      /* Fixes touch event discarding inside standalone web apps */
       height: -webkit-fill-available; 
+      overflow: hidden; 
     }
 
-        /* HORIZONTAL SLIDER VIEWPORT & NATIVE MOBILE SCROLL PIPELINE */
-    .slider-viewport {
-      width: 100%;
-      overflow: hidden;
-      flex-grow: 1;
-      display: flex;
-      flex-direction: column;
-      position: relative;
-      /* Tells iOS standalone mode that child structural containers handle the scrolling */
-      touch-action: pan-y; 
-    }
-    
-    .slider-track {
-      display: flex;
-      width: 200%;
-      height: 100%;
-      transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
-      will-change: transform;
-    }
-    
-    .content-scroll-zone {
-      width: 50%;
-      height: 100%;
-      /* Force standalone container to yield scrolling control to iOS touch inertia */
-      overflow-y: auto !important;
-      -webkit-overflow-scrolling: touch; 
-      padding: 4px 16px 140px 16px; /* Added extra bottom padding to clear the iOS home indicator bar */
-      display: flex;
-      flex-direction: column;
-      gap: 16px;
-    }
-
-    /* --- GLOBAL VIEW TRANSITION CONFIG ARCHITECTURE --- */
+    /* GLOBAL VIEW TRANSITIONS */
     .view-section {
       position: absolute;
       top: 0;
@@ -89,8 +56,6 @@
       height: 100%;
       display: flex;
       flex-direction: column;
-      
-      /* Hardware-accelerated transitions */
       opacity: 0;
       pointer-events: none;
       transform: scale(0.96);
@@ -106,7 +71,6 @@
       z-index: 10;
     }
 
-    /* Specific smooth slide up for the transaction form view */
     #form-view {
       transform: translateY(30px);
       opacity: 0;
@@ -115,7 +79,6 @@
       transform: translateY(0);
       opacity: 1;
     }
-    /* -------------------------------------------------- */
 
     /* PROFILE SELECT VIEW */
     #auth-view {
@@ -176,6 +139,7 @@
       flex-direction: column;
       align-items: center;
       position: relative;
+      flex-shrink: 0;
     }
 
     .switch-profile-badge {
@@ -207,7 +171,6 @@
       margin-bottom: 20px;
     }
 
-    /* VIEW CONTROLS / SEGMENTS */
     .segmented-control {
       display: flex;
       background-color: var(--bg-input);
@@ -216,6 +179,7 @@
       width: 100%;
       max-width: 340px;
       margin-bottom: 24px;
+      flex-shrink: 0;
     }
 
     .segment-tab {
@@ -242,6 +206,7 @@
       width: 100%;
       margin-bottom: 12px;
       padding: 0 8px;
+      flex-shrink: 0;
     }
 
     .metric-block {
@@ -261,13 +226,15 @@
       font-weight: 700;
     }
 
-    /* --- HORIZONTAL SLIDER SYSTEM PIPELINES --- */
+    /* HORIZONTAL SLIDER VIEWPORT & NATIVE MOBILE SCROLL PIPELINE */
     .slider-viewport {
       width: 100%;
       overflow: hidden;
       flex-grow: 1;
       display: flex;
       flex-direction: column;
+      position: relative;
+      touch-action: pan-y; 
     }
 
     .slider-track {
@@ -281,69 +248,89 @@
     .content-scroll-zone {
       width: 50%;
       height: 100%;
-      overflow-y: auto;
-      padding: 0 16px 100px 16px;
+      overflow-y: auto !important;
+      -webkit-overflow-scrolling: touch; 
+      padding: 4px 16px 140px 16px; 
       display: flex;
       flex-direction: column;
-      gap: 20px;
+      gap: 16px;
     }
-    /* ------------------------------------------- */
 
     .date-group-title {
       font-size: 0.95rem;
       font-weight: 700;
       color: var(--text-main);
-      margin-bottom: 8px;
+      margin-top: 8px;
+      margin-bottom: 4px;
       padding-left: 4px;
     }
 
+    /* CARD TEXT WRAPPING FIXES */
     .tx-card-row {
       background-color: var(--bg-card);
       border-radius: 16px;
-      padding: 16px;
+      padding: 14px 16px;
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 8px;
+      gap: 12px;
     }
 
     .tx-card-left {
       display: flex;
       align-items: center;
-      gap: 14px;
+      gap: 12px;
+      flex: 1;
+      min-width: 0; 
     }
 
     .tx-icon-wrapper {
-      font-size: 1.4rem;
+      font-size: 1.3rem;
       background-color: var(--bg-input);
-      width: 44px;
-      height: 44px;
+      width: 40px;
+      height: 40px;
       border-radius: 12px;
       display: flex;
       justify-content: center;
       align-items: center;
+      flex-shrink: 0;
+    }
+
+    .tx-meta {
+      flex: 1;
+      min-width: 0;
     }
 
     .tx-meta h4 {
-      font-size: 1rem;
+      font-size: 0.95rem;
       font-weight: 600;
       margin-bottom: 2px;
+      word-wrap: break-word;
+      overflow-wrap: break-word;
+      white-space: normal;
+      line-height: 1.3;
     }
 
     .tx-meta p {
       font-size: 0.8rem;
       color: var(--text-muted);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
 
     .tx-card-right {
       display: flex;
       align-items: center;
       gap: 12px;
+      flex-shrink: 0; 
+      text-align: right;
     }
 
     .tx-card-value {
       font-size: 1.05rem;
       font-weight: 700;
+      white-space: nowrap;
     }
 
     .card-trash-btn {
@@ -352,19 +339,19 @@
       font-size: 1.1rem;
       cursor: pointer;
       padding: 4px;
-      opacity: 0.6;
+      opacity: 0.4;
+      transition: opacity 0.2s;
     }
     
     .card-trash-btn:active {
       opacity: 1;
     }
 
-    /* BALANCES CAP */
     .balance-card-box {
       background-color: var(--bg-card);
       border-radius: 16px;
       padding: 20px;
-      margin-top: 10px;
+      margin-top: 4px;
     }
 
     .settlement-alert {
@@ -378,16 +365,14 @@
       line-height: 1.4;
     }
 
-    /* STICKY ACTION FAB */
+    /* VIEWPORT FIXED FLOATING ACTION BUTTON WITH LAYER ISOLATION */
     .floating-action-anchor {
       position: fixed; 
       bottom: calc(30px + env(safe-area-inset-bottom)); 
       right: 24px;
-      z-index: 9999; /* Boost the z-index layer */
-      
-      /* CRITICAL FOR PWA/HOME SCREEN STANDALONE MODE: */
+      z-index: 9999;
       -webkit-transform: translateZ(0);
-      transform: translateZ(0); /* Forces iOS to render this on a permanent, non-scrollable GPU layer */
+      transform: translateZ(0); 
       will-change: transform;
     }
 
@@ -404,7 +389,7 @@
       align-items: center;
     }
 
-    /* DEDICATED FULL SCREEN TRANSACTION INPUT VIEW */
+    /* FORM SYSTEM STYLES */
     .form-view-container {
       padding: 16px 16px 40px 16px;
       display: flex;
@@ -464,7 +449,26 @@
       border-color: var(--accent-blue);
     }
 
-    /* GRID CATEGORIES CONFIG */
+    .collapsible-payer-row {
+      max-height: 110px;
+      opacity: 1;
+      transform: scaleY(1);
+      transform-origin: top;
+      will-change: max-height, opacity, transform, margin;
+      transition: max-height 0.28s cubic-bezier(0.4, 0, 0.2, 1),
+                  opacity 0.24s cubic-bezier(0.4, 0, 0.2, 1),
+                  transform 0.28s cubic-bezier(0.4, 0, 0.2, 1),
+                  margin 0.28s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .collapsible-payer-row.collapsed {
+      max-height: 0px !important;
+      opacity: 0 !important;
+      transform: scaleY(0.9) translateY(-10px) !important;
+      margin-bottom: -6px !important;
+      pointer-events: none;
+    }
+
     .category-grid-container {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
@@ -472,6 +476,14 @@
       max-height: 220px;
       overflow-y: auto;
       padding: 4px 2px;
+      will-change: opacity, transform;
+      transition: opacity 0.22s cubic-bezier(0.4, 0, 0.2, 1),
+                  transform 0.22s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .category-grid-container.morphing {
+      opacity: 0;
+      transform: scale(0.97);
     }
 
     .category-grid-item {
@@ -591,10 +603,8 @@
       <div class="slider-viewport">
         <div class="slider-track" id="main-slider-track">
           
-          <!-- Feed Container lists (Expenses View) -->
           <div class="content-scroll-zone" id="sub-view-expenses"></div>
 
-          <!-- Balances Split metrics View -->
           <div class="content-scroll-zone" id="sub-view-balances">
             <div class="balance-card-box">
               <div style="display:flex; justify-content:space-between; margin-bottom:14px; font-size:0.95rem;">
@@ -609,11 +619,12 @@
               <div class="settlement-alert" id="settlement-sentence">Calculating balance splits...</div>
             </div>
           </div>
-
         </div>
       </div>
 
-    <!-- TRANSACTION ENTRY VIEW -->
+    </div> <!-- End of main-view -->
+
+    <!-- TRANSACTION ENTRY FORM VIEW -->
     <div id="form-view" class="view-section">
       <div class="form-view-container">
         
@@ -624,7 +635,6 @@
 
         <form id="ledger-form" onsubmit="handleFormSubmit(event)">
           
-          <!-- FLOW TYPE SEGMENTS selector -->
           <div class="form-group">
             <div class="segmented-control" style="max-width:100%; margin-bottom:4px;">
               <button class="segment-tab active" id="type-tab-expense" type="button" onclick="changeFormFlowType('Expense')">Expenses</button>
@@ -633,13 +643,11 @@
             </div>
           </div>
 
-          <!-- DYNAMIC GRID CATEGORY PICKER -->
           <div class="form-group" style="margin-bottom: 6px;">
             <label>Select Category</label>
             <div class="category-grid-container" id="category-grid-box"></div>
           </div>
 
-          <!-- LEDGER TARGET PICKER -->
           <div class="form-group">
             <label>Ledger Target</label>
             <div class="segmented-control" style="max-width:100%; margin-bottom: 4px; background-color: var(--bg-dark); padding: 4px;">
@@ -648,8 +656,7 @@
             </div>
           </div>
 
-          <!-- WHO PAID SPLIT TOGGLE -->
-          <div class="form-group" id="form-payer-block">
+          <div class="form-group collapsible-payer-row" id="form-payer-block">
             <label>Who Paid?</label>
             <div class="segmented-control" style="max-width:100%; margin-bottom: 4px; background-color: var(--bg-dark); padding: 4px;">
               <button class="segment-tab" id="payer-btn-CYO" type="button" onclick="setFormPayer('CYO')">🐻 布布</button>
@@ -657,7 +664,6 @@
             </div>
           </div>
 
-          <!-- TRANSACTION VALUE DETAILS -->
           <div class="form-group">
             <label>Amount (RM)</label>
             <input type="number" id="tx-amount" class="form-control" step="0.01" placeholder="0.00" required>
@@ -679,14 +685,14 @@
       </div>
     </div>
 
-  </div>
+  </div> <!-- End of app-container -->
 
-      <!-- MOVE THE FAB OUT HERE AT THE ROOT LEVEL -->
-      <div class="floating-action-anchor" id="global-fab-container" style="display: none;">
-        <button class="fab-btn" onclick="navigateToFormView()">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="3" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
-        </button>
-      </div>
+  <!-- ROOT LEVEL VIEWPORT ANCHORED FAB FOR iOS STANDALONE RELIABILITY -->
+  <div class="floating-action-anchor" id="global-fab-container" style="display: none;">
+    <button class="fab-btn" onclick="navigateToFormView()">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="3" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+    </button>
+  </div>
 
   <div id="toast"></div>
 
@@ -713,7 +719,7 @@
       
       document.getElementById('auth-view').classList.remove('active');
       document.getElementById('main-view').classList.add('active');
-      document.getElementById('global-fab-container').style.display = 'block'; // Show FAB
+      document.getElementById('global-fab-container').style.display = 'block'; 
       syncFetch();
     }
 
@@ -721,7 +727,7 @@
       selectedUserCode = "";
       document.getElementById('main-view').classList.remove('active');
       document.getElementById('auth-view').classList.add('active');
-      document.getElementById('global-fab-container').style.display = 'none'; // Hide FAB
+      document.getElementById('global-fab-container').style.display = 'none'; 
     }
 
     function setSubView(target) {
@@ -738,11 +744,10 @@
       renderFeed();
     }
 
-    // UPDATED INTER-SCREEN ROUTING VIA TRANSITIONS
     function navigateToFormView() {
       document.getElementById('main-view').classList.remove('active');
       document.getElementById('form-view').classList.add('active');
-      document.getElementById('global-fab-container').style.display = 'none'; // Hide FAB
+      document.getElementById('global-fab-container').style.display = 'none'; 
       
       activeFormFlowType = "Expense";
       activeFormLedgerTarget = "Shared_Ledger";
@@ -758,7 +763,7 @@
     function navigateToFeedView() {
       document.getElementById('form-view').classList.remove('active');
       document.getElementById('main-view').classList.add('active');
-      document.getElementById('global-fab-container').style.display = 'block'; // Show FAB again
+      document.getElementById('global-fab-container').style.display = 'block'; 
     }
 
     function changeFormFlowType(type) {
@@ -768,13 +773,15 @@
       document.getElementById('type-tab-transfer').classList.toggle('active', type === 'Transfer');
       
       if (type === 'Transfer' || type === 'Income') {
-        setFormLedgerTarget('Private_Ledger');
+        activeFormLedgerTarget = 'Private_Ledger';
       } else {
-        setFormLedgerTarget('Shared_Ledger');
+        activeFormLedgerTarget = 'Shared_Ledger';
       }
       
-      renderFormCategoriesGrid();
-      updateFormUIVisibility();
+      document.getElementById('target-tab-shared').classList.toggle('active', activeFormLedgerTarget === 'Shared_Ledger');
+      document.getElementById('target-tab-private').classList.toggle('active', activeFormLedgerTarget === 'Private_Ledger');
+      
+      animateFormMaturityTransition();
     }
 
     function setFormLedgerTarget(target) {
@@ -782,8 +789,24 @@
       document.getElementById('target-tab-shared').classList.toggle('active', target === 'Shared_Ledger');
       document.getElementById('target-tab-private').classList.toggle('active', target === 'Private_Ledger');
       
-      renderFormCategoriesGrid();
-      updateFormUIVisibility();
+      animateFormMaturityTransition();
+    }
+
+    function animateFormMaturityTransition() {
+      const grid = document.getElementById('category-grid-box');
+      grid.classList.add('morphing');
+      
+      const payerBlock = document.getElementById('form-payer-block');
+      if (activeFormLedgerTarget === 'Shared_Ledger') {
+        payerBlock.classList.remove('collapsed');
+      } else {
+        payerBlock.classList.add('collapsed');
+      }
+
+      setTimeout(() => {
+        renderFormCategoriesGrid();
+        grid.classList.remove('morphing');
+      }, 160);
     }
 
     function setFormPayer(payerCode) {
@@ -792,17 +815,9 @@
       document.getElementById('payer-btn-LKS').classList.toggle('active', payerCode === 'LKS');
     }
 
-    function updateFormUIVisibility() {
-      const payerBlock = document.getElementById('form-payer-block');
-      if (activeFormLedgerTarget === 'Shared_Ledger') {
-        payerBlock.style.display = 'flex';
-      } else {
-        payerBlock.style.display = 'none';
-      }
-    }
-
     function renderFormCategoriesGrid() {
       const gridContainer = document.getElementById('category-grid-box');
+      if (!gridContainer) return;
       gridContainer.innerHTML = "";
       let itemsToRender = [];
       
@@ -930,7 +945,7 @@
           calculateRunningMetrics();
           renderFeed();
         }
-      } catch (err) { console.log("Sync error captured."); }
+      } catch (err) { console.log("Sync sequence processed."); }
     }
 
     function calculateRunningMetrics() {
@@ -947,17 +962,17 @@
         if(row[5] === "Expense") privateExp += (parseFloat(row[3]) || 0);
       });
 
-      const fairShareOfShared = totalShared / 2;
+      const fairShare = totalShared / 2;
       document.getElementById('val-total-expenses').textContent = `RM ${totalShared.toFixed(2)}`;
-      document.getElementById('val-my-expenses').textContent = `RM ${(privateExp + fairShareOfShared).toFixed(2)}`;
+      document.getElementById('val-my-expenses').textContent = `RM ${(privateExp + fairShare).toFixed(2)}`;
       document.getElementById('bal-bubu-paid').textContent = `RM ${bubuPaid.toFixed(2)}`;
       document.getElementById('bal-yier-paid').textContent = `RM ${yierPaid.toFixed(2)}`;
       
       const sentence = document.getElementById('settlement-sentence');
-      if (bubuPaid > fairShareOfShared) {
-        sentence.textContent = `Yier 🐼 owes Bubu 🐻 RM ${(bubuPaid - fairShareOfShared).toFixed(2)}`;
-      } else if (yierPaid > fairShareOfShared) {
-        sentence.textContent = `Bubu 🐻 owes Yier 🐼 RM ${(yierPaid - fairShareOfShared).toFixed(2)}`;
+      if (bubuPaid > fairShare) {
+        sentence.textContent = `Yier 🐼 owes Bubu 🐻 RM ${(bubuPaid - fairShare).toFixed(2)}`;
+      } else if (yierPaid > fairShare) {
+        sentence.textContent = `Bubu 🐻 owes Yier 🐼 RM ${(yierPaid - fairShare).toFixed(2)}`;
       } else {
         sentence.textContent = `Settled up perfectly!`;
       }
@@ -965,6 +980,7 @@
 
     function renderFeed() {
       const feed = document.getElementById('sub-view-expenses');
+      if (!feed) return;
       feed.innerHTML = "";
       const rows = dataCache.shared; 
       if (!rows || rows.length === 0) {
@@ -1039,6 +1055,7 @@
 
     function showToast(text, type) {
       const toast = document.getElementById('toast');
+      if (!toast) return;
       toast.textContent = text;
       toast.className = "show";
       setTimeout(() => toast.className = "", 2000);
