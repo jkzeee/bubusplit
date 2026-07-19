@@ -32,6 +32,7 @@
       display: flex;
       justify-content: center;
       min-height: 100vh;
+      overflow: hidden; /* Prevents bounce scroll during macro transitions */
     }
 
     .app-container {
@@ -41,20 +42,46 @@
       position: relative;
       display: flex;
       flex-direction: column;
-      min-height: 100vh;
-      overflow-x: hidden; /* Added to secure edge scrolling bounds */
+      height: 100vh;
+      overflow: hidden; 
     }
 
+    /* --- GLOBAL VIEW TRANSITION CONFIG ARCHITECTURE --- */
     .view-section {
-      display: none;
-      flex-direction: column;
-      flex-grow: 1;
+      position: absolute;
+      top: 0;
+      left: 0;
       width: 100%;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      
+      /* Hardware-accelerated transitions */
+      opacity: 0;
+      pointer-events: none;
+      transform: scale(0.96);
+      will-change: transform, opacity;
+      transition: opacity 0.28s cubic-bezier(0.4, 0, 0.2, 1), 
+                  transform 0.28s cubic-bezier(0.4, 0, 0.2, 1);
     }
     
     .view-section.active {
-      display: flex;
+      opacity: 1;
+      pointer-events: auto;
+      transform: scale(1);
+      z-index: 10;
     }
+
+    /* Specific smooth slide up for the transaction form view */
+    #form-view {
+      transform: translateY(30px);
+      opacity: 0;
+    }
+    #form-view.active {
+      transform: translateY(0);
+      opacity: 1;
+    }
+    /* -------------------------------------------------- */
 
     /* PROFILE SELECT VIEW */
     #auth-view {
@@ -62,7 +89,6 @@
       align-items: center;
       padding: 24px;
       text-align: center;
-      height: 100vh;
     }
 
     .pin-title {
@@ -212,14 +238,14 @@
 
     .slider-track {
       display: flex;
-      width: 200%; /* Spans both columns */
+      width: 200%;
       height: 100%;
       transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
       will-change: transform;
     }
 
     .content-scroll-zone {
-      width: 50%; /* Each page takes exactly 100% of the app viewport width */
+      width: 50%;
       height: 100%;
       overflow-y: auto;
       padding: 0 16px 100px 16px;
@@ -320,13 +346,10 @@
 
     /* STICKY ACTION FAB */
     .floating-action-anchor {
-      position: fixed;
+      position: absolute;
       bottom: 30px;
-      right: calc(50% - 200px);
+      right: 24px;
       z-index: 99;
-    }
-    @media (max-width: 440px) {
-      .floating-action-anchor { right: 24px; }
     }
 
     .fab-btn {
@@ -348,6 +371,8 @@
       display: flex;
       flex-direction: column;
       gap: 20px;
+      height: 100%;
+      overflow-y: auto;
     }
 
     .form-navigation-header {
@@ -523,7 +548,7 @@
         </div>
       </div>
 
-      <!-- SLIDER VIEWPORT WRAPPER: Keeps sub-views mounted side-by-side inside the flow -->
+      <!-- SLIDER VIEWPORT WRAPPER -->
       <div class="slider-viewport">
         <div class="slider-track" id="main-slider-track">
           
@@ -557,7 +582,7 @@
       </div>
     </div>
 
-    <!-- NEW FULL-SCREEN TRANSACTION ENTRY VIEW (REPLACES POPUP MODALS) -->
+    <!-- TRANSACTION ENTRY VIEW -->
     <div id="form-view" class="view-section">
       <div class="form-view-container">
         
@@ -580,9 +605,7 @@
           <!-- DYNAMIC GRID CATEGORY PICKER -->
           <div class="form-group" style="margin-bottom: 6px;">
             <label>Select Category</label>
-            <div class="category-grid-container" id="category-grid-box">
-              <!-- Dynamically rendered custom categories go here -->
-            </div>
+            <div class="category-grid-container" id="category-grid-box"></div>
           </div>
 
           <!-- LEDGER TARGET PICKER -->
@@ -594,7 +617,7 @@
             </div>
           </div>
 
-          <!-- WHO PAID SPLIT TOGGLE (HIDDEN IN PRIVATE LEDGER VIEW) -->
+          <!-- WHO PAID SPLIT TOGGLE -->
           <div class="form-group" id="form-payer-block">
             <label>Who Paid?</label>
             <div class="segmented-control" style="max-width:100%; margin-bottom: 4px; background-color: var(--bg-dark); padding: 4px;">
@@ -636,13 +659,11 @@
     let currentSubView = "expenses"; 
     let dataCache = { shared: [], private: [] };
     
-    // Dynamic Config parameters synced from configuration database sheet
     let serverSharedCategories = [];
     let serverPrivateCategoryMap = {};
 
-    // Current Form State parameters
-    let activeFormFlowType = "Expense"; // 'Expense', 'Income', 'Transfer'
-    let activeFormLedgerTarget = "Shared_Ledger"; // 'Shared_Ledger', 'Private_Ledger'
+    let activeFormFlowType = "Expense"; 
+    let activeFormLedgerTarget = "Shared_Ledger"; 
     let activeFormSelectedCategory = "";
     let activeFormPayer = "";
 
@@ -651,6 +672,8 @@
     function loginUser(userCode) {
       selectedUserCode = userCode;
       document.getElementById('header-avatar').textContent = userCode === "CYO" ? "🐻" : "🐼";
+      
+      // Clean cross-fade switch
       document.getElementById('auth-view').classList.remove('active');
       document.getElementById('main-view').classList.add('active');
       syncFetch();
@@ -662,31 +685,26 @@
       document.getElementById('auth-view').classList.add('active');
     }
 
-    // UPDATED VIEW CONTROLLER ENGINE FOR HORIZONTAL SLIDING TRANSITIONS
     function setSubView(target) {
       currentSubView = target;
-      
-      // Toggle segments tab highlight colors exactly as before
       document.getElementById('btn-sub-exp').classList.toggle('active', target === 'expenses');
       document.getElementById('btn-sub-bal').classList.toggle('active', target === 'balances');
       
-      // Perform translation instead of hiding/showing displays via CSS engine
       const track = document.getElementById('main-slider-track');
       if (target === 'expenses') {
         track.style.transform = 'translateX(0%)';
       } else {
         track.style.transform = 'translateX(-50%)';
       }
-      
       renderFeed();
     }
 
-    // SCREEN ROUTING ENGINES
+    // UPDATED INTER-SCREEN ROUTING VIA TRANSITIONS
     function navigateToFormView() {
+      // Form slides up gracefully while main view scales back cleanly
       document.getElementById('main-view').classList.remove('active');
       document.getElementById('form-view').classList.add('active');
       
-      // Initialize layout rules with default flows
       activeFormFlowType = "Expense";
       activeFormLedgerTarget = "Shared_Ledger";
       setFormPayer(selectedUserCode);
@@ -710,7 +728,6 @@
       document.getElementById('type-tab-income').classList.toggle('active', type === 'Income');
       document.getElementById('type-tab-transfer').classList.toggle('active', type === 'Transfer');
       
-      // Auto routing: Transfer and Income naturally toggle target vaults or visibility parameters
       if (type === 'Transfer' || type === 'Income') {
         setFormLedgerTarget('Private_Ledger');
       } else {
@@ -737,7 +754,6 @@
     }
 
     function updateFormUIVisibility() {
-      // Joint ledger requires Payer tracking; Private ledgers hide it implicitly
       const payerBlock = document.getElementById('form-payer-block');
       if (activeFormLedgerTarget === 'Shared_Ledger') {
         payerBlock.style.display = 'flex';
@@ -746,72 +762,50 @@
       }
     }
 
-    // RENDERS DYNAMIC GRID FOR ALL DETECTED OR FALLBACK CONFIGURATIONS
     function renderFormCategoriesGrid() {
       const gridContainer = document.getElementById('category-grid-box');
       gridContainer.innerHTML = "";
-      
       let itemsToRender = [];
       
       if (activeFormLedgerTarget === "Shared_Ledger") {
-        // Fallbacks fallback gracefully if backend configuration array hasn't completed loading
         const fallbacks = ["🍲 Food & Groceries", "🏠 House Rent", "🔌 Utilities & Subscriptions", "🎬 Outing / Dates", "📈 Shared Projects / Goals", "📦 Others (Shared)"];
         itemsToRender = serverSharedCategories.length > 0 ? serverSharedCategories : fallbacks;
       } else {
-        // Build private view arrays matching selected entry type flow rules
         let matchingPrivateList = [];
         const fallbackMap = {
           "Government Salary": "Income", "Locum Income": "Income", "Investment Inflow": "Income", "Others (Income)": "Income",
           "Personal Food": "Expense", "Car Loan": "Expense", "Petrol & Tolls": "Expense", "Car Maintenance": "Expense",
           "Insurance": "Expense", "Savings & Investments": "Expense", "Utilities & Subscriptions": "Expense", "Others (Personal)": "Expense"
         };
-        
         const sourceMap = Object.keys(serverPrivateCategoryMap).length > 0 ? serverPrivateCategoryMap : fallbackMap;
-        
         for (const [catName, catType] of Object.entries(sourceMap)) {
-          if (catType === activeFormFlowType) {
-            matchingPrivateList.push(catName);
-          }
+          if (catType === activeFormFlowType) matchingPrivateList.push(catName);
         }
-        
-        // Handle standalone Transfer fallback or custom configurations smoothly
         if (matchingPrivateList.length === 0 && activeFormFlowType === "Transfer") {
           matchingPrivateList = ["🔄 Move to Savings", "📈 Equity Allocation", "📦 Internal Transfer"];
-        } else if (matchingPrivateList.length === 0) {
-          matchingPrivateList = activeFormFlowType === "Income" ? ["💼 Salary", "💰 Dividends"] : ["🍲 Food", "📦 Personal Exp"];
         }
         itemsToRender = matchingPrivateList;
       }
       
-      // Build interactive layout cards inside scroll field grid mapping custom names cleanly
       itemsToRender.forEach((categoryString, idx) => {
         const itemBtn = document.createElement('div');
         itemBtn.className = 'category-grid-item';
-        
-        // Splice or preserve emojis if typed directly inside custom database configuration rows
         let displayIcon = "💵";
         let displayName = categoryString;
         
-        // Simple regex checker extracting custom prefix emojis if configured by user
         const emojiMatch = categoryString.match(/^([^a-zA-Z0-9\s一-龥]+)\s*(.*)$/);
         if (emojiMatch) {
           displayIcon = emojiMatch[1];
           displayName = emojiMatch[2];
         } else {
-          // Internal UI maps fallback icons based on standard strings if no explicit emoji prefix is detected
           const standardCleanStr = categoryString.replace(/[^\w\s一-龥]/gi, '').trim();
           const fallbackEmojis = { "Food": "🍲", "Rent": "🏠", "Utilities": "🔌", "Outing": "🎬", "Salary": "💼", "Locum": "🩺", "Petrol": "⛽", "Car": "🚗", "Insurance": "🛡️", "Savings": "💰" };
           for (const [key, icon] of Object.entries(fallbackEmojis)) {
-            if (standardCleanStr.toLowerCase().includes(key.toLowerCase())) {
-              displayIcon = icon;
-              break;
-            }
+            if (standardCleanStr.toLowerCase().includes(key.toLowerCase())) { displayIcon = icon; break; }
           }
         }
         
         itemBtn.innerHTML = `<span class="cat-icon">${displayIcon}</span><span>${displayName}</span>`;
-        
-        // Auto select first dynamic column item as starting baseline context target
         if (idx === 0) {
           itemBtn.classList.add('selected');
           activeFormSelectedCategory = categoryString;
@@ -821,25 +815,19 @@
           document.querySelectorAll('.category-grid-item').forEach(el => el.classList.remove('selected'));
           itemBtn.classList.add('selected');
           activeFormSelectedCategory = categoryString;
-          
-          // CRITICAL TRIGGER ACTION: Set structural focal cursor to text field automatically upon category selection
           document.getElementById('tx-amount').focus();
         };
-        
         gridContainer.appendChild(itemBtn);
       });
     }
 
     async function handleFormSubmit(e) {
       e.preventDefault();
-      
       const inputDate = document.getElementById('tx-date').value;
       const inputDesc = document.getElementById('tx-desc').value || activeFormSelectedCategory;
       const inputAmount = parseFloat(document.getElementById('tx-amount').value) || 0;
-      
       const tempId = "temp_" + Date.now();
       
-      // Inject entry cleanly into UI models optimistically to sustain responsive latency metrics
       if (activeFormLedgerTarget === "Shared_Ledger") {
         dataCache.shared.push([tempId, inputDate, inputDesc, inputAmount, activeFormPayer, "Equally", activeFormSelectedCategory]);
       } else {
@@ -868,9 +856,7 @@
       }
 
       const response = await sendToSpreadsheet(payload);
-      if (!response || response.status !== "success") {
-        showToast("Sync Background Fail!", "danger");
-      }
+      if (!response || response.status !== "success") showToast("Sync Background Fail!", "danger");
       syncFetch(); 
     }
 
@@ -900,19 +886,16 @@
         if (response && response.status === "success") {
           dataCache.shared = response.shared || [];
           dataCache.private = response.private || [];
-          
           if (response.sharedCategories) serverSharedCategories = response.sharedCategories;
           if (response.privateCategoryMap) serverPrivateCategoryMap = response.privateCategoryMap;
-          
           calculateRunningMetrics();
           renderFeed();
         }
-      } catch (err) { console.log("Sync runtime trace captured."); }
+      } catch (err) { console.log("Sync error captured."); }
     }
 
     function calculateRunningMetrics() {
       let totalShared = 0, bubuPaid = 0, yierPaid = 0;
-      
       dataCache.shared.forEach(row => {
         const amt = parseFloat(row[3]) || 0;
         totalShared += amt;
@@ -922,14 +905,12 @@
 
       let privateExp = 0;
       dataCache.private.forEach(row => {
-        if(row[5] === "Expense") { privateExp += (parseFloat(row[3]) || 0); }
+        if(row[5] === "Expense") privateExp += (parseFloat(row[3]) || 0);
       });
 
       const fairShareOfShared = totalShared / 2;
-
       document.getElementById('val-total-expenses').textContent = `RM ${totalShared.toFixed(2)}`;
       document.getElementById('val-my-expenses').textContent = `RM ${(privateExp + fairShareOfShared).toFixed(2)}`;
-
       document.getElementById('bal-bubu-paid').textContent = `RM ${bubuPaid.toFixed(2)}`;
       document.getElementById('bal-yier-paid').textContent = `RM ${yierPaid.toFixed(2)}`;
       
@@ -945,10 +926,7 @@
 
     function renderFeed() {
       const feed = document.getElementById('sub-view-expenses');
-      
-      // Removed the early break return condition so background sync arrays can render layout nodes seamlessly
       feed.innerHTML = "";
-      
       const rows = dataCache.shared; 
       if (!rows || rows.length === 0) {
         feed.innerHTML = `<p style="text-align:center;color:var(--text-muted);font-size:0.9rem;padding:40px 16px;">No recent expenses tracked.</p>`;
@@ -965,7 +943,6 @@
       Object.keys(grouped).sort().reverse().forEach(dateKey => {
         const title = document.createElement('div');
         title.className = 'date-group-title';
-        
         const targetDate = new Date(dateKey).setHours(0,0,0,0);
         const today = new Date().setHours(0,0,0,0);
         const yesterday = new Date(today).setDate(new Date().getDate() - 1);
@@ -973,15 +950,13 @@
         if(targetDate === today) title.textContent = "Today";
         else if(targetDate === yesterday) title.textContent = "Yesterday";
         else title.textContent = new Date(dateKey).toLocaleDateString('en-SG', {day:'numeric', month:'short', year:'numeric'});
-        
         feed.appendChild(title);
 
         grouped[dateKey].reverse().forEach(row => {
           const card = document.createElement('div');
           card.className = 'tx-card-row';
-          if(String(row[0]).startsWith("temp_")) { card.style.opacity = "0.5"; }
+          if(String(row[0]).startsWith("temp_")) card.style.opacity = "0.5";
 
-          // Read custom configured emoji prefix or extract standard fallback markers
           let cellEmoji = "💵";
           const emojiMatch = row[6].match(/^([^a-zA-Z0-9\s一-龥]+)/);
           if (emojiMatch) {
@@ -992,7 +967,6 @@
               if (row[6].toLowerCase().includes(key.toLowerCase())) { cellEmoji = icon; break; }
             }
           }
-          
           const payer = row[4] === "CYO" ? "布布" : "一二";
           
           card.innerHTML = `
@@ -1016,11 +990,9 @@
     async function deleteRecord(rowId) {
       if (String(rowId).startsWith("temp_")) return;
       if (!confirm("Delete this entry permanently?")) return;
-      
       dataCache.shared = dataCache.shared.filter(r => r[0] !== rowId);
       calculateRunningMetrics();
       renderFeed();
-
       await sendToSpreadsheet({ action: "DELETE", targetTable: "Shared_Ledger", rowId: rowId });
       showToast("Deleted.", "success");
       syncFetch();
