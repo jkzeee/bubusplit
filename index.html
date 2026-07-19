@@ -379,11 +379,12 @@
     }
 
     /* STICKY ACTION FAB */
-    .floating-action-anchor {
-      position: absolute;
-      bottom: 30px;
+     .floating-action-anchor {
+      /* Change from absolute to fixed so it anchors to the viewport, not the container */
+      position: fixed; 
+      bottom: calc(30px + env(safe-area-inset-bottom)); /* Dynamic padding for the iPhone home bar */
       right: 24px;
-      z-index: 99;
+      z-index: 999; /* Ensure it stays layered above all scrolling content cards */
     }
 
     .fab-btn {
