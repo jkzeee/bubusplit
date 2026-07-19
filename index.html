@@ -42,6 +42,7 @@
       display: flex;
       flex-direction: column;
       min-height: 100vh;
+      overflow-x: hidden; /* Added to secure edge scrolling bounds */
     }
 
     .view-section {
@@ -200,13 +201,33 @@
       font-weight: 700;
     }
 
-    /* SCROLL ZONE & TX CARDS */
+    /* --- HORIZONTAL SLIDER SYSTEM PIPELINES --- */
+    .slider-viewport {
+      width: 100%;
+      overflow: hidden;
+      flex-grow: 1;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .slider-track {
+      display: flex;
+      width: 200%; /* Spans both columns */
+      height: 100%;
+      transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+      will-change: transform;
+    }
+
     .content-scroll-zone {
+      width: 50%; /* Each page takes exactly 100% of the app viewport width */
+      height: 100%;
+      overflow-y: auto;
       padding: 0 16px 100px 16px;
       display: flex;
       flex-direction: column;
       gap: 20px;
     }
+    /* ------------------------------------------- */
 
     .date-group-title {
       font-size: 0.95rem;
@@ -502,21 +523,29 @@
         </div>
       </div>
 
-      <!-- Feed Container lists -->
-      <div class="content-scroll-zone" id="sub-view-expenses"></div>
+      <!-- SLIDER VIEWPORT WRAPPER: Keeps sub-views mounted side-by-side inside the flow -->
+      <div class="slider-viewport">
+        <div class="slider-track" id="main-slider-track">
+          
+          <!-- Feed Container lists (Expenses View) -->
+          <div class="content-scroll-zone" id="sub-view-expenses"></div>
 
-      <div class="content-scroll-zone" id="sub-view-balances" style="display: none;">
-        <div class="balance-card-box">
-          <div style="display:flex; justify-content:space-between; margin-bottom:14px; font-size:0.95rem;">
-            <span style="color:var(--text-muted);">Bubu 🐻 Paid Shared Total</span>
-            <span id="bal-bubu-paid" style="font-weight:700;">RM 0.00</span>
+          <!-- Balances Split metrics View -->
+          <div class="content-scroll-zone" id="sub-view-balances">
+            <div class="balance-card-box">
+              <div style="display:flex; justify-content:space-between; margin-bottom:14px; font-size:0.95rem;">
+                <span style="color:var(--text-muted);">Bubu 🐻 Paid Shared Total</span>
+                <span id="bal-bubu-paid" style="font-weight:700;">RM 0.00</span>
+              </div>
+              <div style="display:flex; justify-content:space-between; margin-bottom:14px; font-size:0.95rem;">
+                <span style="color:var(--text-muted);">Yier 🐼 Paid Shared Total</span>
+                <span id="bal-yier-paid" style="font-weight:700;">RM 0.00</span>
+              </div>
+              <hr style="border:0; border-top:1px solid var(--bg-pill); margin:12px 0;">
+              <div class="settlement-alert" id="settlement-sentence">Calculating balance splits...</div>
+            </div>
           </div>
-          <div style="display:flex; justify-content:space-between; margin-bottom:14px; font-size:0.95rem;">
-            <span style="color:var(--text-muted);">Yier 🐼 Paid Shared Total</span>
-            <span id="bal-yier-paid" style="font-weight:700;">RM 0.00</span>
-          </div>
-          <hr style="border:0; border-top:1px solid var(--bg-pill); margin:12px 0;">
-          <div class="settlement-alert" id="settlement-sentence">Calculating balance splits...</div>
+
         </div>
       </div>
 
@@ -633,12 +662,22 @@
       document.getElementById('auth-view').classList.add('active');
     }
 
+    // UPDATED VIEW CONTROLLER ENGINE FOR HORIZONTAL SLIDING TRANSITIONS
     function setSubView(target) {
       currentSubView = target;
+      
+      // Toggle segments tab highlight colors exactly as before
       document.getElementById('btn-sub-exp').classList.toggle('active', target === 'expenses');
       document.getElementById('btn-sub-bal').classList.toggle('active', target === 'balances');
-      document.getElementById('sub-view-expenses').style.display = target === 'expenses' ? 'flex' : 'none';
-      document.getElementById('sub-view-balances').style.display = target === 'balances' ? 'block' : 'none';
+      
+      // Perform translation instead of hiding/showing displays via CSS engine
+      const track = document.getElementById('main-slider-track');
+      if (target === 'expenses') {
+        track.style.transform = 'translateX(0%)';
+      } else {
+        track.style.transform = 'translateX(-50%)';
+      }
+      
       renderFeed();
     }
 
@@ -906,7 +945,8 @@
 
     function renderFeed() {
       const feed = document.getElementById('sub-view-expenses');
-      if (currentSubView !== 'expenses') return;
+      
+      // Removed the early break return condition so background sync arrays can render layout nodes seamlessly
       feed.innerHTML = "";
       
       const rows = dataCache.shared; 
