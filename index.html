@@ -15,6 +15,7 @@
       --text-muted: #8e8e93;
       --success-green: #30d158;
       --danger-red: #ff453a;
+      --accent-tint: rgba(10, 132, 255, 0.15);
     }
 
     * {
@@ -41,24 +42,24 @@
       display: flex;
       flex-direction: column;
       min-height: 100vh;
-      padding-bottom: 100px;
     }
 
     .view-section {
       display: none;
-    }
-    .view-section.active {
-      display: flex;
       flex-direction: column;
       flex-grow: 1;
+      width: 100%;
+    }
+    
+    .view-section.active {
+      display: flex;
     }
 
-    /* PROFILE SELECT VIEW FIXED CENTERED DESIGN */
+    /* PROFILE SELECT VIEW */
     #auth-view {
       justify-content: center;
       align-items: center;
       padding: 24px;
-      background-color: var(--bg-dark);
       text-align: center;
       height: 100vh;
     }
@@ -106,7 +107,7 @@
       transform: scale(0.95);
     }
 
-    /* MAIN INTERFACE HEADER */
+    /* MAIN FEED VIEWS */
     .tricount-header {
       padding: 24px 16px 16px 16px;
       text-align: center;
@@ -129,6 +130,7 @@
       font-weight: 600;
       cursor: pointer;
     }
+    
     .switch-profile-badge:active {
       background-color: var(--bg-pill);
     }
@@ -144,7 +146,8 @@
       margin-bottom: 20px;
     }
 
-    .tricount-tabs {
+    /* VIEW CONTROLS / SEGMENTS */
+    .segmented-control {
       display: flex;
       background-color: var(--bg-input);
       padding: 4px;
@@ -154,7 +157,7 @@
       margin-bottom: 24px;
     }
 
-    .tri-tab {
+    .segment-tab {
       flex: 1;
       background: none;
       border: none;
@@ -167,7 +170,7 @@
       transition: all 0.2s ease;
     }
 
-    .tri-tab.active {
+    .segment-tab.active {
       background-color: var(--bg-pill);
       color: var(--text-main);
     }
@@ -197,9 +200,9 @@
       font-weight: 700;
     }
 
-    /* TRANSACTION FEEDS */
+    /* SCROLL ZONE & TX CARDS */
     .content-scroll-zone {
-      padding: 0 16px;
+      padding: 0 16px 100px 16px;
       display: flex;
       flex-direction: column;
       gap: 20px;
@@ -230,7 +233,7 @@
     }
 
     .tx-icon-wrapper {
-      font-size: 1.5rem;
+      font-size: 1.4rem;
       background-color: var(--bg-input);
       width: 44px;
       height: 44px;
@@ -265,13 +268,17 @@
     .card-trash-btn {
       background: none;
       border: none;
-      color: var(--danger-red);
-      font-size: 1rem;
+      font-size: 1.1rem;
       cursor: pointer;
       padding: 4px;
+      opacity: 0.6;
+    }
+    
+    .card-trash-btn:active {
+      opacity: 1;
     }
 
-    /* BALANCES BOX */
+    /* BALANCES CAP */
     .balance-card-box {
       background-color: var(--bg-card);
       border-radius: 16px;
@@ -290,7 +297,7 @@
       line-height: 1.4;
     }
 
-    /* FAB POSITIONING */
+    /* STICKY ACTION FAB */
     .floating-action-anchor {
       position: fixed;
       bottom: 30px;
@@ -307,73 +314,54 @@
       border-radius: 50%;
       background-color: var(--accent-blue);
       border: none;
-      box-shadow: 0 4px 12px rgba(10, 132, 255, 0.4);
+      box-shadow: 0 4px 14px rgba(10, 132, 255, 0.4);
       cursor: pointer;
       display: flex;
       justify-content: center;
       align-items: center;
     }
 
-    /* BOTTOM DRAWER MODAL */
-    .modal-bottom-drawer {
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background-color: rgba(0,0,0,0.6);
-      z-index: 1000;
-      display: none;
-      justify-content: center;
-      align-items: flex-end;
-    }
-
-    .modal-bottom-drawer.open {
+    /* DEDICATED FULL SCREEN TRANSACTION INPUT VIEW */
+    .form-view-container {
+      padding: 16px 16px 40px 16px;
       display: flex;
+      flex-direction: column;
+      gap: 20px;
     }
 
-    .drawer-surface {
-      width: 100%;
-      max-width: 440px;
-      background-color: var(--bg-card);
-      border-top-left-radius: 24px;
-      border-top-right-radius: 24px;
-      padding: 24px;
-      animation: slideUp 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-    }
-
-    @keyframes slideUp {
-      from { transform: translateY(100%); }
-      to { transform: translateY(0); }
-    }
-
-    .drawer-header {
+    .form-navigation-header {
       display: flex;
-      justify-content: space-between;
       align-items: center;
-      margin-bottom: 24px;
+      gap: 16px;
+      padding: 8px 0;
     }
 
-    .drawer-close-btn {
+    .back-arrow-btn {
       background: none;
       border: none;
       color: var(--accent-blue);
-      font-size: 1rem;
-      font-weight: 500;
+      font-size: 1.6rem;
       cursor: pointer;
+      padding: 4px 8px 4px 0;
+    }
+
+    .form-title-text {
+      font-size: 1.3rem;
+      font-weight: 700;
     }
 
     .form-group {
-      margin-bottom: 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
     }
 
     .form-group label {
-      display: block;
-      font-size: 0.8rem;
+      font-size: 0.75rem;
       color: var(--text-muted);
       text-transform: uppercase;
-      margin-bottom: 6px;
-      letter-spacing: 0.5px;
+      letter-spacing: 0.6px;
+      font-weight: 600;
     }
 
     .form-control {
@@ -391,22 +379,69 @@
       border-color: var(--accent-blue);
     }
 
+    /* GRID CATEGORIES CONFIG */
+    .category-grid-container {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      max-height: 220px;
+      overflow-y: auto;
+      padding: 4px 2px;
+    }
+
+    .category-grid-item {
+      background-color: var(--bg-card);
+      border: 2px solid transparent;
+      border-radius: 12px;
+      padding: 12px 6px;
+      text-align: center;
+      font-size: 0.85rem;
+      font-weight: 500;
+      color: var(--text-main);
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      transition: all 0.15s ease;
+    }
+
+    .category-grid-item:active {
+      transform: scale(0.96);
+    }
+
+    .category-grid-item.selected {
+      background-color: var(--accent-tint);
+      border-color: var(--accent-blue);
+    }
+
+    .category-grid-item .cat-icon {
+      font-size: 1.4rem;
+    }
+
     .sheet-submit-btn {
       width: 100%;
       background-color: var(--accent-blue);
       color: white;
       border: none;
       padding: 16px;
-      font-size: 1rem;
+      font-size: 1.05rem;
       font-weight: 600;
       border-radius: 14px;
       cursor: pointer;
-      margin-top: 12px;
+      margin-top: 10px;
+      box-shadow: 0 4px 12px rgba(10, 132, 255, 0.2);
+    }
+
+    .sheet-submit-btn:active {
+      opacity: 0.9;
+      transform: scale(0.99);
     }
 
     #toast {
       position: fixed;
-      bottom: 100px;
+      bottom: 40px;
       left: 50%;
       transform: translateX(-50%) translateY(150px);
       background-color: var(--bg-pill);
@@ -443,16 +478,16 @@
       </div>
     </div>
 
-    <!-- MAIN INTERFACE VIEW -->
+    <!-- MAIN INTERFACE HOME FEED VIEW -->
     <div id="main-view" class="view-section">
       <div class="tricount-header">
         <button class="switch-profile-badge" onclick="logoutToProfiles()">🔄 Switch</button>
         <div class="avatar-main" id="header-avatar">🐻</div>
         <h2 class="app-main-title">熊熊币记录</h2>
         
-        <div class="tricount-tabs">
-          <button class="tri-tab active" id="btn-sub-exp" onclick="setSubView('expenses')">Expenses</button>
-          <button class="tri-tab" id="btn-sub-bal" onclick="setSubView('balances')">Balances</button>
+        <div class="segmented-control">
+          <button class="segment-tab active" id="btn-sub-exp" onclick="setSubView('expenses')">Expenses</button>
+          <button class="segment-tab" id="btn-sub-bal" onclick="setSubView('balances')">Balances</button>
         </div>
 
         <div class="metrics-summary-bar">
@@ -467,7 +502,7 @@
         </div>
       </div>
 
-      <!-- Content Scroll Feeds -->
+      <!-- Feed Container lists -->
       <div class="content-scroll-zone" id="sub-view-expenses"></div>
 
       <div class="content-scroll-zone" id="sub-view-balances" style="display: none;">
@@ -485,92 +520,102 @@
         </div>
       </div>
 
-      <!-- FAB BUTTON -->
+      <!-- STICKY FLOATING ENTRY BUTTON -->
       <div class="floating-action-anchor">
-        <button class="fab-btn" onclick="openDrawer()">
+        <button class="fab-btn" onclick="navigateToFormView()">
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="3" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
         </button>
       </div>
     </div>
 
-  </div>
+    <!-- NEW FULL-SCREEN TRANSACTION ENTRY VIEW (REPLACES POPUP MODALS) -->
+    <div id="form-view" class="view-section">
+      <div class="form-view-container">
+        
+        <div class="form-navigation-header">
+          <button class="back-arrow-btn" onclick="navigateToFeedView()">←</button>
+          <div class="form-title-text">Add New Transaction</div>
+        </div>
 
-  <!-- SLIDING MODAL DRAWER POPUP WINDOW -->
-  <div class="modal-bottom-drawer" id="entry-drawer" onclick="closeDrawerViaBackdrop(event)">
-    <div class="drawer-surface">
-      <div class="drawer-header">
-        <h3 style="font-size: 1.2rem; font-weight:700;">Add New Transaction</h3>
-        <button class="drawer-close-btn" type="button" onclick="closeDrawer()">Cancel</button>
-      </div>
-
-      <!-- Ledger Source Picker Switch Tab Segment -->
-      <div class="tricount-tabs" style="max-width:100%; margin-bottom:20px;">
-        <button class="tri-tab active" id="form-tab-shared" type="button" onclick="setFormTable('Shared_Ledger')">Joint Ledger</button>
-        <button class="tri-tab" id="form-tab-private" type="button" onclick="setFormTable('Private_Ledger')">Private Vault</button>
-      </div>
-
-      <form id="ledger-form" onsubmit="handleFormSubmit(event)">
-        <!-- WHO PAID TOGGLE -->
-        <div class="form-group" id="payer-toggle-group">
-          <label>Who Paid?</label>
-          <div class="tricount-tabs" style="max-width:100%; margin-top:6px; background-color: var(--bg-dark); padding: 4px;">
-            <button class="tri-tab" id="payer-btn-CYO" type="button" onclick="setFormPayer('CYO')">🐻 布布</button>
-            <button class="tri-tab" id="payer-btn-LKS" type="button" onclick="setFormPayer('LKS')">🐼 一二</button>
+        <form id="ledger-form" onsubmit="handleFormSubmit(event)">
+          
+          <!-- FLOW TYPE SEGMENTS selector -->
+          <div class="form-group">
+            <div class="segmented-control" style="max-width:100%; margin-bottom:4px;">
+              <button class="segment-tab active" id="type-tab-expense" type="button" onclick="changeFormFlowType('Expense')">Expenses</button>
+              <button class="segment-tab" id="type-tab-income" type="button" onclick="changeFormFlowType('Income')">Income</button>
+              <button class="segment-tab" id="type-tab-transfer" type="button" onclick="changeFormFlowType('Transfer')">Transfer</button>
+            </div>
           </div>
-        </div>
 
-        <div class="form-group">
-          <label>Date</label>
-          <input type="date" id="tx-date" class="form-control" required>
-        </div>
+          <!-- DYNAMIC GRID CATEGORY PICKER -->
+          <div class="form-group" style="margin-bottom: 6px;">
+            <label>Select Category</label>
+            <div class="category-grid-container" id="category-grid-box">
+              <!-- Dynamically rendered custom categories go here -->
+            </div>
+          </div>
 
-        <div class="form-group">
-          <label>Description</label>
-          <input type="text" id="tx-desc" class="form-control" placeholder="What did you buy?" required>
-        </div>
+          <!-- LEDGER TARGET PICKER -->
+          <div class="form-group">
+            <label>Ledger Target</label>
+            <div class="segmented-control" style="max-width:100%; margin-bottom: 4px; background-color: var(--bg-dark); padding: 4px;">
+              <button class="segment-tab active" id="target-tab-shared" type="button" onclick="setFormLedgerTarget('Shared_Ledger')">Joint Ledger</button>
+              <button class="segment-tab" id="target-tab-private" type="button" onclick="setFormLedgerTarget('Private_Ledger')">Private Vault</button>
+            </div>
+          </div>
 
-        <div class="form-group">
-          <label>Amount (RM)</label>
-          <input type="number" id="tx-amount" class="form-control" step="0.01" placeholder="0.00" required>
-        </div>
+          <!-- WHO PAID SPLIT TOGGLE (HIDDEN IN PRIVATE LEDGER VIEW) -->
+          <div class="form-group" id="form-payer-block">
+            <label>Who Paid?</label>
+            <div class="segmented-control" style="max-width:100%; margin-bottom: 4px; background-color: var(--bg-dark); padding: 4px;">
+              <button class="segment-tab" id="payer-btn-CYO" type="button" onclick="setFormPayer('CYO')">🐻 布布</button>
+              <button class="segment-tab" id="payer-btn-LKS" type="button" onclick="setFormPayer('LKS')">🐼 一二</button>
+            </div>
+          </div>
 
-        <div class="form-group">
-          <label>Category</label>
-          <select id="tx-category" class="form-control"></select>
-        </div>
+          <!-- TRANSACTION VALUE DETAILS -->
+          <div class="form-group">
+            <label>Amount (RM)</label>
+            <input type="number" id="tx-amount" class="form-control" step="0.01" placeholder="0.00" required>
+          </div>
 
-        <button type="submit" class="sheet-submit-btn" id="form-submit-btn">Save Entry</button>
-      </form>
+          <div class="form-group">
+            <label>Description</label>
+            <input type="text" id="tx-desc" class="form-control" placeholder="Optional notes/details">
+          </div>
+
+          <div class="form-group">
+            <label>Date</label>
+            <input type="date" id="tx-date" class="form-control" required>
+          </div>
+
+          <button type="submit" class="sheet-submit-btn">Save Entry</button>
+        </form>
+        
+      </div>
     </div>
+
   </div>
 
   <div id="toast"></div>
 
   <script>
-    // System Deployment Link Locked In
     const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbyRwnAE-rROX1rxbZZngG_G3HaR2cUl-84eYQhcoOpSo9EqSrwwXpaDFYlo40cZ4SF7/exec";
 
     let selectedUserCode = "";
-    let currentTab = "Shared_Ledger"; 
     let currentSubView = "expenses"; 
-    let formSelectedPayer = ""; 
     let dataCache = { shared: [], private: [] };
+    
+    // Dynamic Config parameters synced from configuration database sheet
+    let serverSharedCategories = [];
+    let serverPrivateCategoryMap = {};
 
-    const EMOJI_MAP = {
-      "Food & Groceries": "🍲", "Personal Food": "🍲",
-      "House Rent": "🏠", "Utilities & Subscriptions": "🔌",
-      "Outing / Dates": "🎬", "Shared Projects / Goals": "📈",
-      "Government Salary": "💼", "Locum Income": "🩺",
-      "Car Loan": "🚗", "Petrol & Tolls": "⛽",
-      "Car Maintenance": "🔧", "Insurance": "🛡️",
-      "Savings & Investments": "💰", "Others (Shared)": "📦", "Others (Personal)": "📦"
-    };
-
-    const PRIVATE_CATEGORIES = {
-      "Government Salary": "Income", "Locum Income": "Income", "Investment Inflow": "Income", "Others (Income)": "Income",
-      "Personal Food": "Expense", "Car Loan": "Expense", "Petrol & Tolls": "Expense", "Car Maintenance": "Expense",
-      "Insurance": "Expense", "Savings & Investments": "Expense", "Utilities & Subscriptions": "Expense", "Others (Personal)": "Expense"
-    };
+    // Current Form State parameters
+    let activeFormFlowType = "Expense"; // 'Expense', 'Income', 'Transfer'
+    let activeFormLedgerTarget = "Shared_Ledger"; // 'Shared_Ledger', 'Private_Ledger'
+    let activeFormSelectedCategory = "";
+    let activeFormPayer = "";
 
     document.getElementById('tx-date').valueAsDate = new Date();
 
@@ -579,7 +624,6 @@
       document.getElementById('header-avatar').textContent = userCode === "CYO" ? "🐻" : "🐼";
       document.getElementById('auth-view').classList.remove('active');
       document.getElementById('main-view').classList.add('active');
-      setFormTable('Shared_Ledger');
       syncFetch();
     }
 
@@ -598,86 +642,189 @@
       renderFeed();
     }
 
-    function openDrawer() { 
+    // SCREEN ROUTING ENGINES
+    function navigateToFormView() {
+      document.getElementById('main-view').classList.remove('active');
+      document.getElementById('form-view').classList.add('active');
+      
+      // Initialize layout rules with default flows
+      activeFormFlowType = "Expense";
+      activeFormLedgerTarget = "Shared_Ledger";
       setFormPayer(selectedUserCode);
-      setFormTable('Shared_Ledger');
-      document.getElementById('entry-drawer').classList.add('open'); 
+      
+      document.getElementById('tx-date').valueAsDate = new Date();
+      document.getElementById('tx-amount').value = "";
+      document.getElementById('tx-desc').value = "";
+      
+      renderFormCategoriesGrid();
+      updateFormUIVisibility();
     }
 
-    function closeDrawer() { 
-      document.getElementById('entry-drawer').classList.remove('open'); 
+    function navigateToFeedView() {
+      document.getElementById('form-view').classList.remove('active');
+      document.getElementById('main-view').classList.add('active');
     }
 
-    function closeDrawerViaBackdrop(e) { 
-      if(e.target.id === 'entry-drawer') closeDrawer(); 
+    function changeFormFlowType(type) {
+      activeFormFlowType = type;
+      document.getElementById('type-tab-expense').classList.toggle('active', type === 'Expense');
+      document.getElementById('type-tab-income').classList.toggle('active', type === 'Income');
+      document.getElementById('type-tab-transfer').classList.toggle('active', type === 'Transfer');
+      
+      // Auto routing: Transfer and Income naturally toggle target vaults or visibility parameters
+      if (type === 'Transfer' || type === 'Income') {
+        setFormLedgerTarget('Private_Ledger');
+      } else {
+        setFormLedgerTarget('Shared_Ledger');
+      }
+      
+      renderFormCategoriesGrid();
+      updateFormUIVisibility();
+    }
+
+    function setFormLedgerTarget(target) {
+      activeFormLedgerTarget = target;
+      document.getElementById('target-tab-shared').classList.toggle('active', target === 'Shared_Ledger');
+      document.getElementById('target-tab-private').classList.toggle('active', target === 'Private_Ledger');
+      
+      renderFormCategoriesGrid();
+      updateFormUIVisibility();
     }
 
     function setFormPayer(payerCode) {
-      formSelectedPayer = payerCode;
-      const bubuBtn = document.getElementById('payer-btn-CYO');
-      const yierBtn = document.getElementById('payer-btn-LKS');
-      if(bubuBtn && yierBtn) {
-        bubuBtn.classList.toggle('active', payerCode === 'CYO');
-        yierBtn.classList.toggle('active', payerCode === 'LKS');
+      activeFormPayer = payerCode;
+      document.getElementById('payer-btn-CYO').classList.toggle('active', payerCode === 'CYO');
+      document.getElementById('payer-btn-LKS').classList.toggle('active', payerCode === 'LKS');
+    }
+
+    function updateFormUIVisibility() {
+      // Joint ledger requires Payer tracking; Private ledgers hide it implicitly
+      const payerBlock = document.getElementById('form-payer-block');
+      if (activeFormLedgerTarget === 'Shared_Ledger') {
+        payerBlock.style.display = 'flex';
+      } else {
+        payerBlock.style.display = 'none';
       }
     }
 
-    function setFormTable(targetTable) {
-      currentTab = targetTable;
-      document.getElementById('form-tab-shared').classList.toggle('active', targetTable === 'Shared_Ledger');
-      document.getElementById('form-tab-private').classList.toggle('active', targetTable === 'Private_Ledger');
+    // RENDERS DYNAMIC GRID FOR ALL DETECTED OR FALLBACK CONFIGURATIONS
+    function renderFormCategoriesGrid() {
+      const gridContainer = document.getElementById('category-grid-box');
+      gridContainer.innerHTML = "";
       
-      document.getElementById('payer-toggle-group').style.display = targetTable === 'Shared_Ledger' ? 'block' : 'none';
+      let itemsToRender = [];
       
-      const catSelect = document.getElementById('tx-category');
-      catSelect.innerHTML = "";
-      
-      if (targetTable === 'Shared_Ledger') {
-        const sharedOptions = ["Food & Groceries", "House Rent", "Utilities & Subscriptions", "Outing / Dates", "Shared Projects / Goals", "Others (Shared)"];
-        sharedOptions.forEach(opt => catSelect.add(new Option(opt, opt)));
+      if (activeFormLedgerTarget === "Shared_Ledger") {
+        // Fallbacks fallback gracefully if backend configuration array hasn't completed loading
+        const fallbacks = ["🍲 Food & Groceries", "🏠 House Rent", "🔌 Utilities & Subscriptions", "🎬 Outing / Dates", "📈 Shared Projects / Goals", "📦 Others (Shared)"];
+        itemsToRender = serverSharedCategories.length > 0 ? serverSharedCategories : fallbacks;
       } else {
-        Object.keys(PRIVATE_CATEGORIES).forEach(opt => catSelect.add(new Option(opt, opt)));
+        // Build private view arrays matching selected entry type flow rules
+        let matchingPrivateList = [];
+        const fallbackMap = {
+          "Government Salary": "Income", "Locum Income": "Income", "Investment Inflow": "Income", "Others (Income)": "Income",
+          "Personal Food": "Expense", "Car Loan": "Expense", "Petrol & Tolls": "Expense", "Car Maintenance": "Expense",
+          "Insurance": "Expense", "Savings & Investments": "Expense", "Utilities & Subscriptions": "Expense", "Others (Personal)": "Expense"
+        };
+        
+        const sourceMap = Object.keys(serverPrivateCategoryMap).length > 0 ? serverPrivateCategoryMap : fallbackMap;
+        
+        for (const [catName, catType] of Object.entries(sourceMap)) {
+          if (catType === activeFormFlowType) {
+            matchingPrivateList.push(catName);
+          }
+        }
+        
+        // Handle standalone Transfer fallback or custom configurations smoothly
+        if (matchingPrivateList.length === 0 && activeFormFlowType === "Transfer") {
+          matchingPrivateList = ["🔄 Move to Savings", "📈 Equity Allocation", "📦 Internal Transfer"];
+        } else if (matchingPrivateList.length === 0) {
+          matchingPrivateList = activeFormFlowType === "Income" ? ["💼 Salary", "💰 Dividends"] : ["🍲 Food", "📦 Personal Exp"];
+        }
+        itemsToRender = matchingPrivateList;
       }
+      
+      // Build interactive layout cards inside scroll field grid mapping custom names cleanly
+      itemsToRender.forEach((categoryString, idx) => {
+        const itemBtn = document.createElement('div');
+        itemBtn.className = 'category-grid-item';
+        
+        // Splice or preserve emojis if typed directly inside custom database configuration rows
+        let displayIcon = "💵";
+        let displayName = categoryString;
+        
+        // Simple regex checker extracting custom prefix emojis if configured by user
+        const emojiMatch = categoryString.match(/^([^a-zA-Z0-9\s一-龥]+)\s*(.*)$/);
+        if (emojiMatch) {
+          displayIcon = emojiMatch[1];
+          displayName = emojiMatch[2];
+        } else {
+          // Internal UI maps fallback icons based on standard strings if no explicit emoji prefix is detected
+          const standardCleanStr = categoryString.replace(/[^\w\s一-龥]/gi, '').trim();
+          const fallbackEmojis = { "Food": "🍲", "Rent": "🏠", "Utilities": "🔌", "Outing": "🎬", "Salary": "💼", "Locum": "🩺", "Petrol": "⛽", "Car": "🚗", "Insurance": "🛡️", "Savings": "💰" };
+          for (const [key, icon] of Object.entries(fallbackEmojis)) {
+            if (standardCleanStr.toLowerCase().includes(key.toLowerCase())) {
+              displayIcon = icon;
+              break;
+            }
+          }
+        }
+        
+        itemBtn.innerHTML = `<span class="cat-icon">${displayIcon}</span><span>${displayName}</span>`;
+        
+        // Auto select first dynamic column item as starting baseline context target
+        if (idx === 0) {
+          itemBtn.classList.add('selected');
+          activeFormSelectedCategory = categoryString;
+        }
+        
+        itemBtn.onclick = () => {
+          document.querySelectorAll('.category-grid-item').forEach(el => el.classList.remove('selected'));
+          itemBtn.classList.add('selected');
+          activeFormSelectedCategory = categoryString;
+          
+          // CRITICAL TRIGGER ACTION: Set structural focal cursor to text field automatically upon category selection
+          document.getElementById('tx-amount').focus();
+        };
+        
+        gridContainer.appendChild(itemBtn);
+      });
     }
 
     async function handleFormSubmit(e) {
       e.preventDefault();
       
       const inputDate = document.getElementById('tx-date').value;
-      const inputDesc = document.getElementById('tx-desc').value;
+      const inputDesc = document.getElementById('tx-desc').value || activeFormSelectedCategory;
       const inputAmount = parseFloat(document.getElementById('tx-amount').value) || 0;
-      const inputCategory = document.getElementById('tx-category').value;
       
       const tempId = "temp_" + Date.now();
       
-      if (currentTab === "Shared_Ledger") {
-        dataCache.shared.push([tempId, inputDate, inputDesc, inputAmount, formSelectedPayer, "Equally", inputCategory]);
+      // Inject entry cleanly into UI models optimistically to sustain responsive latency metrics
+      if (activeFormLedgerTarget === "Shared_Ledger") {
+        dataCache.shared.push([tempId, inputDate, inputDesc, inputAmount, activeFormPayer, "Equally", activeFormSelectedCategory]);
       } else {
-        const flowType = PRIVATE_CATEGORIES[inputCategory] || "Expense";
-        dataCache.private.push([tempId, inputDate, inputDesc, inputAmount, selectedUserCode, flowType, inputCategory]);
+        dataCache.private.push([tempId, inputDate, inputDesc, inputAmount, selectedUserCode, activeFormFlowType, activeFormSelectedCategory]);
       }
 
       calculateRunningMetrics();
       renderFeed();
-      closeDrawer();
-      showToast("Entry Added!", "success");
-
-      document.getElementById('tx-desc').value = "";
-      document.getElementById('tx-amount').value = "";
+      navigateToFeedView();
+      showToast("Entry Recorded!", "success");
 
       let payload = {
         action: "CREATE",
-        targetTable: currentTab,
+        targetTable: activeFormLedgerTarget,
         date: inputDate,
         description: inputDesc,
         amount: inputAmount,
-        category: inputCategory
+        category: activeFormSelectedCategory
       };
 
-      if (currentTab === "Shared_Ledger") { 
-        payload.paidBy = formSelectedPayer; 
+      if (activeFormLedgerTarget === "Shared_Ledger") { 
+        payload.paidBy = activeFormPayer; 
       } else { 
-        payload.flowType = PRIVATE_CATEGORIES[inputCategory] || "Expense"; 
+        payload.flowType = activeFormFlowType; 
         payload.operator = selectedUserCode; 
       }
 
@@ -714,10 +861,14 @@
         if (response && response.status === "success") {
           dataCache.shared = response.shared || [];
           dataCache.private = response.private || [];
+          
+          if (response.sharedCategories) serverSharedCategories = response.sharedCategories;
+          if (response.privateCategoryMap) serverPrivateCategoryMap = response.privateCategoryMap;
+          
           calculateRunningMetrics();
           renderFeed();
         }
-      } catch (err) { console.log("Sync issue caught."); }
+      } catch (err) { console.log("Sync runtime trace captured."); }
     }
 
     function calculateRunningMetrics() {
@@ -790,15 +941,26 @@
           card.className = 'tx-card-row';
           if(String(row[0]).startsWith("temp_")) { card.style.opacity = "0.5"; }
 
-          const emoji = EMOJI_MAP[row[6]] || "💵";
+          // Read custom configured emoji prefix or extract standard fallback markers
+          let cellEmoji = "💵";
+          const emojiMatch = row[6].match(/^([^a-zA-Z0-9\s一-龥]+)/);
+          if (emojiMatch) {
+            cellEmoji = emojiMatch[1];
+          } else {
+            const fallbackEmojis = { "Food": "🍲", "Rent": "🏠", "Utilities": "🔌", "Outing": "🎬", "Salary": "💼", "Locum": "🩺", "Petrol": "⛽", "Car": "🚗", "Insurance": "🛡️", "Savings": "💰" };
+            for (const [key, icon] of Object.entries(fallbackEmojis)) {
+              if (row[6].toLowerCase().includes(key.toLowerCase())) { cellEmoji = icon; break; }
+            }
+          }
+          
           const payer = row[4] === "CYO" ? "布布" : "一二";
           
           card.innerHTML = `
             <div class="tx-card-left">
-              <div class="tx-icon-wrapper">${emoji}</div>
+              <div class="tx-icon-wrapper">${cellEmoji}</div>
               <div class="tx-meta">
                 <h4>${row[2]} ${String(row[0]).startsWith("temp_") ? "<span style='font-size:0.75rem;color:var(--accent-blue);'>🕒</span>" : ""}</h4>
-                <p>Paid by ${payer}</p>
+                <p>Paid by ${payer} • ${row[6]}</p>
               </div>
             </div>
             <div class="tx-card-right">
