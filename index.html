@@ -1,997 +1,319 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-  <title>熊熊币记录</title>
-  <style>
-    :root {
-      --bg-dark: #000000;
-      --bg-card: #121214;
-      --bg-input: #1c1c1e;
-      --bg-pill: #2c2c2e;
-      --accent-blue: #0a84ff;
-      --text-main: #ffffff;
-      --text-muted: #8e8e93;
-      --success-green: #30d158;
-      --danger-red: #ff453a;
-      --accent-tint: rgba(10, 132, 255, 0.15);
-    }
-
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", system-ui, sans-serif;
-      -webkit-tap-highlight-color: transparent;
-    }
-
-    body {
-      background-color: var(--bg-dark);
-      color: var(--text-main);
-      display: flex;
-      justify-content: center;
-      min-height: 100vh;
-    }
-
-    .app-container {
-      width: 100%;
-      max-width: 440px;
-      background-color: var(--bg-dark);
-      position: relative;
-      display: flex;
-      flex-direction: column;
-      min-height: 100vh;
-    }
-
-    .view-section {
-      display: none;
-      flex-direction: column;
-      flex-grow: 1;
-      width: 100%;
-    }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Finance Tracker PWA</title>
+    <!-- Tailwind CSS for sleek styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- React and ReactDOM Development Builds -->
+    <script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js" crossorigin></script>
+    <!-- Babel to compile JSX inside the script tag -->
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
     
-    .view-section.active {
-      display: flex;
-    }
-
-    /* PROFILE SELECT VIEW */
-    #auth-view {
-      justify-content: center;
-      align-items: center;
-      padding: 24px;
-      text-align: center;
-      height: 100vh;
-    }
-
-    .pin-title {
-      font-size: 1.7rem;
-      font-weight: 600;
-      margin-bottom: 8px;
-    }
-
-    .pin-subtitle {
-      color: var(--text-muted);
-      font-size: 0.95rem;
-      margin-bottom: 40px;
-    }
-
-    .user-select-container {
-      display: flex;
-      gap: 24px;
-      justify-content: center;
-      width: 100%;
-    }
-
-    .user-avatar-btn {
-      background: var(--bg-card);
-      border: 2px solid transparent;
-      border-radius: 20px;
-      width: 120px;
-      height: 120px;
-      font-size: 1.05rem;
-      color: var(--text-main);
-      font-weight: 600;
-      cursor: pointer;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      gap: 10px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-    }
-
-    .user-avatar-btn:active {
-      background-color: var(--bg-pill);
-      transform: scale(0.95);
-    }
-
-    /* MAIN FEED VIEWS */
-    .tricount-header {
-      padding: 24px 16px 16px 16px;
-      text-align: center;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      position: relative;
-    }
-
-    .switch-profile-badge {
-      position: absolute;
-      top: 24px;
-      right: 16px;
-      background-color: var(--bg-input);
-      color: var(--accent-blue);
-      border: none;
-      padding: 6px 12px;
-      border-radius: 20px;
-      font-size: 0.8rem;
-      font-weight: 600;
-      cursor: pointer;
-    }
-    
-    .switch-profile-badge:active {
-      background-color: var(--bg-pill);
-    }
-
-    .avatar-main {
-      font-size: 3rem;
-      margin-bottom: 6px;
-    }
-
-    .app-main-title {
-      font-size: 1.4rem;
-      font-weight: 700;
-      margin-bottom: 20px;
-    }
-
-    /* VIEW CONTROLS / SEGMENTS */
-    .segmented-control {
-      display: flex;
-      background-color: var(--bg-input);
-      padding: 4px;
-      border-radius: 99px;
-      width: 100%;
-      max-width: 340px;
-      margin-bottom: 24px;
-    }
-
-    .segment-tab {
-      flex: 1;
-      background: none;
-      border: none;
-      color: var(--text-muted);
-      padding: 8px 16px;
-      font-size: 0.9rem;
-      font-weight: 600;
-      border-radius: 99px;
-      cursor: pointer;
-      transition: all 0.2s ease;
-    }
-
-    .segment-tab.active {
-      background-color: var(--bg-pill);
-      color: var(--text-main);
-    }
-
-    .metrics-summary-bar {
-      display: flex;
-      justify-content: space-around;
-      width: 100%;
-      margin-bottom: 12px;
-      padding: 0 8px;
-    }
-
-    .metric-block {
-      text-align: center;
-    }
-
-    .metric-label {
-      font-size: 0.75rem;
-      color: var(--text-muted);
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-      margin-bottom: 4px;
-    }
-
-    .metric-val {
-      font-size: 1.15rem;
-      font-weight: 700;
-    }
-
-    /* SCROLL ZONE & TX CARDS */
-    .content-scroll-zone {
-      padding: 0 16px 100px 16px;
-      display: flex;
-      flex-direction: column;
-      gap: 20px;
-    }
-
-    .date-group-title {
-      font-size: 0.95rem;
-      font-weight: 700;
-      color: var(--text-main);
-      margin-bottom: 8px;
-      padding-left: 4px;
-    }
-
-    .tx-card-row {
-      background-color: var(--bg-card);
-      border-radius: 16px;
-      padding: 16px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 8px;
-    }
-
-    .tx-card-left {
-      display: flex;
-      align-items: center;
-      gap: 14px;
-    }
-
-    .tx-icon-wrapper {
-      font-size: 1.4rem;
-      background-color: var(--bg-input);
-      width: 44px;
-      height: 44px;
-      border-radius: 12px;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-    }
-
-    .tx-meta h4 {
-      font-size: 1rem;
-      font-weight: 600;
-      margin-bottom: 2px;
-    }
-
-    .tx-meta p {
-      font-size: 0.8rem;
-      color: var(--text-muted);
-    }
-
-    .tx-card-right {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    }
-
-    .tx-card-value {
-      font-size: 1.05rem;
-      font-weight: 700;
-    }
-
-    .card-trash-btn {
-      background: none;
-      border: none;
-      font-size: 1.1rem;
-      cursor: pointer;
-      padding: 4px;
-      opacity: 0.6;
-    }
-    
-    .card-trash-btn:active {
-      opacity: 1;
-    }
-
-    /* BALANCES CAP */
-    .balance-card-box {
-      background-color: var(--bg-card);
-      border-radius: 16px;
-      padding: 20px;
-      margin-top: 10px;
-    }
-
-    .settlement-alert {
-      background-color: rgba(10, 132, 255, 0.1);
-      border-left: 4px solid var(--accent-blue);
-      padding: 14px;
-      border-radius: 8px;
-      font-size: 0.95rem;
-      font-weight: 500;
-      margin-top: 20px;
-      line-height: 1.4;
-    }
-
-    /* STICKY ACTION FAB */
-    .floating-action-anchor {
-      position: fixed;
-      bottom: 30px;
-      right: calc(50% - 200px);
-      z-index: 99;
-    }
-    @media (max-width: 440px) {
-      .floating-action-anchor { right: 24px; }
-    }
-
-    .fab-btn {
-      width: 56px;
-      height: 56px;
-      border-radius: 50%;
-      background-color: var(--accent-blue);
-      border: none;
-      box-shadow: 0 4px 14px rgba(10, 132, 255, 0.4);
-      cursor: pointer;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-    }
-
-    /* DEDICATED FULL SCREEN TRANSACTION INPUT VIEW */
-    .form-view-container {
-      padding: 16px 16px 40px 16px;
-      display: flex;
-      flex-direction: column;
-      gap: 20px;
-    }
-
-    .form-navigation-header {
-      display: flex;
-      align-items: center;
-      gap: 16px;
-      padding: 8px 0;
-    }
-
-    .back-arrow-btn {
-      background: none;
-      border: none;
-      color: var(--accent-blue);
-      font-size: 1.6rem;
-      cursor: pointer;
-      padding: 4px 8px 4px 0;
-    }
-
-    .form-title-text {
-      font-size: 1.3rem;
-      font-weight: 700;
-    }
-
-    .form-group {
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-    }
-
-    .form-group label {
-      font-size: 0.75rem;
-      color: var(--text-muted);
-      text-transform: uppercase;
-      letter-spacing: 0.6px;
-      font-weight: 600;
-    }
-
-    .form-control {
-      width: 100%;
-      background-color: var(--bg-input);
-      border: 1px solid transparent;
-      color: var(--text-main);
-      padding: 14px;
-      font-size: 1rem;
-      border-radius: 12px;
-      outline: none;
-    }
-
-    .form-control:focus {
-      border-color: var(--accent-blue);
-    }
-
-    /* GRID CATEGORIES CONFIG */
-    .category-grid-container {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 10px;
-      max-height: 220px;
-      overflow-y: auto;
-      padding: 4px 2px;
-    }
-
-    .category-grid-item {
-      background-color: var(--bg-card);
-      border: 2px solid transparent;
-      border-radius: 12px;
-      padding: 12px 6px;
-      text-align: center;
-      font-size: 0.85rem;
-      font-weight: 500;
-      color: var(--text-main);
-      cursor: pointer;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      gap: 6px;
-      transition: all 0.15s ease;
-    }
-
-    .category-grid-item:active {
-      transform: scale(0.96);
-    }
-
-    .category-grid-item.selected {
-      background-color: var(--accent-tint);
-      border-color: var(--accent-blue);
-    }
-
-    .category-grid-item .cat-icon {
-      font-size: 1.4rem;
-    }
-
-    .sheet-submit-btn {
-      width: 100%;
-      background-color: var(--accent-blue);
-      color: white;
-      border: none;
-      padding: 16px;
-      font-size: 1.05rem;
-      font-weight: 600;
-      border-radius: 14px;
-      cursor: pointer;
-      margin-top: 10px;
-      box-shadow: 0 4px 12px rgba(10, 132, 255, 0.2);
-    }
-
-    .sheet-submit-btn:active {
-      opacity: 0.9;
-      transform: scale(0.99);
-    }
-
-    #toast {
-      position: fixed;
-      bottom: 40px;
-      left: 50%;
-      transform: translateX(-50%) translateY(150px);
-      background-color: var(--bg-pill);
-      color: var(--text-main);
-      padding: 12px 24px;
-      border-radius: 30px;
-      box-shadow: 0 8px 20px rgba(0,0,0,0.5);
-      font-size: 0.9rem;
-      font-weight: 600;
-      transition: transform 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-      z-index: 1100;
-    }
-    #toast.show { transform: translateX(-50%) translateY(0); }
-  </style>
+    <style>
+        /* Smooth native-like slider container hardware acceleration */
+        .slider-wrapper {
+            display: flex;
+            width: 200vw;
+            transition: transform 0.28s cubic-bezier(0.4, 0, 0.2, 1);
+            will-change: transform;
+        }
+        .page-view {
+            width: 100vw;
+            height: calc(100vh - 7rem); /* Responsive calculation accounting for safe-areas, header, footer */
+            flex-shrink: 0;
+        }
+        /* Hide scrollbars for absolute clean look */
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    </style>
 </head>
-<body>
+<body class="bg-slate-50 text-slate-900 font-sans antialiased select-none overflow-hidden w-screen h-screen">
 
-  <div class="app-container">
-    
-    <!-- ONE-TAP PROFILE SELECT SCREEN -->
-    <div id="auth-view" class="view-section active">
-      <h2 class="pin-title">Who is recording?</h2>
-      <p class="pin-subtitle">Tap profile to open ledger</p>
-      
-      <div class="user-select-container">
-        <button class="user-avatar-btn" id="avatar-CYO" onclick="loginUser('CYO')">
-          <span style="font-size: 2.8rem;">🐻</span>
-          <span>Bubu</span>
-        </button>
-        <button class="user-avatar-btn" id="avatar-LKS" onclick="loginUser('LKS')">
-          <span style="font-size: 2.8rem;">🐼</span>
-          <span>Yier</span>
-        </button>
-      </div>
-    </div>
+    <div id="root"></div>
 
-    <!-- MAIN INTERFACE HOME FEED VIEW -->
-    <div id="main-view" class="view-section">
-      <div class="tricount-header">
-        <button class="switch-profile-badge" onclick="logoutToProfiles()">🔄 Switch</button>
-        <div class="avatar-main" id="header-avatar">🐻</div>
-        <h2 class="app-main-title">熊熊币记录</h2>
-        
-        <div class="segmented-control">
-          <button class="segment-tab active" id="btn-sub-exp" onclick="setSubView('expenses')">Expenses</button>
-          <button class="segment-tab" id="btn-sub-bal" onclick="setSubView('balances')">Balances</button>
-        </div>
+    <script type="text/babel">
+        const { useState, useEffect, useRef } = React;
 
-        <div class="metrics-summary-bar">
-          <div class="metric-block">
-            <div class="metric-label">My Expenses</div>
-            <div class="metric-val" id="val-my-expenses" style="color: var(--accent-blue);">RM 0.00</div>
-          </div>
-          <div class="metric-block">
-            <div class="metric-label">Total Expenses</div>
-            <div class="metric-val" id="val-total-expenses">RM 0.00</div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Feed Container lists -->
-      <div class="content-scroll-zone" id="sub-view-expenses"></div>
-
-      <div class="content-scroll-zone" id="sub-view-balances" style="display: none;">
-        <div class="balance-card-box">
-          <div style="display:flex; justify-content:space-between; margin-bottom:14px; font-size:0.95rem;">
-            <span style="color:var(--text-muted);">Bubu 🐻 Paid Shared Total</span>
-            <span id="bal-bubu-paid" style="font-weight:700;">RM 0.00</span>
-          </div>
-          <div style="display:flex; justify-content:space-between; margin-bottom:14px; font-size:0.95rem;">
-            <span style="color:var(--text-muted);">Yier 🐼 Paid Shared Total</span>
-            <span id="bal-yier-paid" style="font-weight:700;">RM 0.00</span>
-          </div>
-          <hr style="border:0; border-top:1px solid var(--bg-pill); margin:12px 0;">
-          <div class="settlement-alert" id="settlement-sentence">Calculating balance splits...</div>
-        </div>
-      </div>
-
-      <!-- STICKY FLOATING ENTRY BUTTON -->
-      <div class="floating-action-anchor">
-        <button class="fab-btn" onclick="navigateToFormView()">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="3" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
-        </button>
-      </div>
-    </div>
-
-    <!-- NEW FULL-SCREEN TRANSACTION ENTRY VIEW (REPLACES POPUP MODALS) -->
-    <div id="form-view" class="view-section">
-      <div class="form-view-container">
-        
-        <div class="form-navigation-header">
-          <button class="back-arrow-btn" onclick="navigateToFeedView()">←</button>
-          <div class="form-title-text">Add New Transaction</div>
-        </div>
-
-        <form id="ledger-form" onsubmit="handleFormSubmit(event)">
-          
-          <!-- FLOW TYPE SEGMENTS selector -->
-          <div class="form-group">
-            <div class="segmented-control" style="max-width:100%; margin-bottom:4px;">
-              <button class="segment-tab active" id="type-tab-expense" type="button" onclick="changeFormFlowType('Expense')">Expenses</button>
-              <button class="segment-tab" id="type-tab-income" type="button" onclick="changeFormFlowType('Income')">Income</button>
-              <button class="segment-tab" id="type-tab-transfer" type="button" onclick="changeFormFlowType('Transfer')">Transfer</button>
-            </div>
-          </div>
-
-          <!-- DYNAMIC GRID CATEGORY PICKER -->
-          <div class="form-group" style="margin-bottom: 6px;">
-            <label>Select Category</label>
-            <div class="category-grid-container" id="category-grid-box">
-              <!-- Dynamically rendered custom categories go here -->
-            </div>
-          </div>
-
-          <!-- LEDGER TARGET PICKER -->
-          <div class="form-group">
-            <label>Ledger Target</label>
-            <div class="segmented-control" style="max-width:100%; margin-bottom: 4px; background-color: var(--bg-dark); padding: 4px;">
-              <button class="segment-tab active" id="target-tab-shared" type="button" onclick="setFormLedgerTarget('Shared_Ledger')">Joint Ledger</button>
-              <button class="segment-tab" id="target-tab-private" type="button" onclick="setFormLedgerTarget('Private_Ledger')">Private Vault</button>
-            </div>
-          </div>
-
-          <!-- WHO PAID SPLIT TOGGLE (HIDDEN IN PRIVATE LEDGER VIEW) -->
-          <div class="form-group" id="form-payer-block">
-            <label>Who Paid?</label>
-            <div class="segmented-control" style="max-width:100%; margin-bottom: 4px; background-color: var(--bg-dark); padding: 4px;">
-              <button class="segment-tab" id="payer-btn-CYO" type="button" onclick="setFormPayer('CYO')">🐻 布布</button>
-              <button class="segment-tab" id="payer-btn-LKS" type="button" onclick="setFormPayer('LKS')">🐼 一二</button>
-            </div>
-          </div>
-
-          <!-- TRANSACTION VALUE DETAILS -->
-          <div class="form-group">
-            <label>Amount (RM)</label>
-            <input type="number" id="tx-amount" class="form-control" step="0.01" placeholder="0.00" required>
-          </div>
-
-          <div class="form-group">
-            <label>Description</label>
-            <input type="text" id="tx-desc" class="form-control" placeholder="Optional notes/details">
-          </div>
-
-          <div class="form-group">
-            <label>Date</label>
-            <input type="date" id="tx-date" class="form-control" required>
-          </div>
-
-          <button type="submit" class="sheet-submit-btn">Save Entry</button>
-        </form>
-        
-      </div>
-    </div>
-
-  </div>
-
-  <div id="toast"></div>
-
-  <script>
-    const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbyRwnAE-rROX1rxbZZngG_G3HaR2cUl-84eYQhcoOpSo9EqSrwwXpaDFYlo40cZ4SF7/exec";
-
-    let selectedUserCode = "";
-    let currentSubView = "expenses"; 
-    let dataCache = { shared: [], private: [] };
-    
-    // Dynamic Config parameters synced from configuration database sheet
-    let serverSharedCategories = [];
-    let serverPrivateCategoryMap = {};
-
-    // Current Form State parameters
-    let activeFormFlowType = "Expense"; // 'Expense', 'Income', 'Transfer'
-    let activeFormLedgerTarget = "Shared_Ledger"; // 'Shared_Ledger', 'Private_Ledger'
-    let activeFormSelectedCategory = "";
-    let activeFormPayer = "";
-
-    document.getElementById('tx-date').valueAsDate = new Date();
-
-    function loginUser(userCode) {
-      selectedUserCode = userCode;
-      document.getElementById('header-avatar').textContent = userCode === "CYO" ? "🐻" : "🐼";
-      document.getElementById('auth-view').classList.remove('active');
-      document.getElementById('main-view').classList.add('active');
-      syncFetch();
-    }
-
-    function logoutToProfiles() {
-      selectedUserCode = "";
-      document.getElementById('main-view').classList.remove('active');
-      document.getElementById('auth-view').classList.add('active');
-    }
-
-    function setSubView(target) {
-      currentSubView = target;
-      document.getElementById('btn-sub-exp').classList.toggle('active', target === 'expenses');
-      document.getElementById('btn-sub-bal').classList.toggle('active', target === 'balances');
-      document.getElementById('sub-view-expenses').style.display = target === 'expenses' ? 'flex' : 'none';
-      document.getElementById('sub-view-balances').style.display = target === 'balances' ? 'block' : 'none';
-      renderFeed();
-    }
-
-    // SCREEN ROUTING ENGINES
-    function navigateToFormView() {
-      document.getElementById('main-view').classList.remove('active');
-      document.getElementById('form-view').classList.add('active');
-      
-      // Initialize layout rules with default flows
-      activeFormFlowType = "Expense";
-      activeFormLedgerTarget = "Shared_Ledger";
-      setFormPayer(selectedUserCode);
-      
-      document.getElementById('tx-date').valueAsDate = new Date();
-      document.getElementById('tx-amount').value = "";
-      document.getElementById('tx-desc').value = "";
-      
-      renderFormCategoriesGrid();
-      updateFormUIVisibility();
-    }
-
-    function navigateToFeedView() {
-      document.getElementById('form-view').classList.remove('active');
-      document.getElementById('main-view').classList.add('active');
-    }
-
-    function changeFormFlowType(type) {
-      activeFormFlowType = type;
-      document.getElementById('type-tab-expense').classList.toggle('active', type === 'Expense');
-      document.getElementById('type-tab-income').classList.toggle('active', type === 'Income');
-      document.getElementById('type-tab-transfer').classList.toggle('active', type === 'Transfer');
-      
-      // Auto routing: Transfer and Income naturally toggle target vaults or visibility parameters
-      if (type === 'Transfer' || type === 'Income') {
-        setFormLedgerTarget('Private_Ledger');
-      } else {
-        setFormLedgerTarget('Shared_Ledger');
-      }
-      
-      renderFormCategoriesGrid();
-      updateFormUIVisibility();
-    }
-
-    function setFormLedgerTarget(target) {
-      activeFormLedgerTarget = target;
-      document.getElementById('target-tab-shared').classList.toggle('active', target === 'Shared_Ledger');
-      document.getElementById('target-tab-private').classList.toggle('active', target === 'Private_Ledger');
-      
-      renderFormCategoriesGrid();
-      updateFormUIVisibility();
-    }
-
-    function setFormPayer(payerCode) {
-      activeFormPayer = payerCode;
-      document.getElementById('payer-btn-CYO').classList.toggle('active', payerCode === 'CYO');
-      document.getElementById('payer-btn-LKS').classList.toggle('active', payerCode === 'LKS');
-    }
-
-    function updateFormUIVisibility() {
-      // Joint ledger requires Payer tracking; Private ledgers hide it implicitly
-      const payerBlock = document.getElementById('form-payer-block');
-      if (activeFormLedgerTarget === 'Shared_Ledger') {
-        payerBlock.style.display = 'flex';
-      } else {
-        payerBlock.style.display = 'none';
-      }
-    }
-
-    // RENDERS DYNAMIC GRID FOR ALL DETECTED OR FALLBACK CONFIGURATIONS
-    function renderFormCategoriesGrid() {
-      const gridContainer = document.getElementById('category-grid-box');
-      gridContainer.innerHTML = "";
-      
-      let itemsToRender = [];
-      
-      if (activeFormLedgerTarget === "Shared_Ledger") {
-        // Fallbacks fallback gracefully if backend configuration array hasn't completed loading
-        const fallbacks = ["🍲 Food & Groceries", "🏠 House Rent", "🔌 Utilities & Subscriptions", "🎬 Outing / Dates", "📈 Shared Projects / Goals", "📦 Others (Shared)"];
-        itemsToRender = serverSharedCategories.length > 0 ? serverSharedCategories : fallbacks;
-      } else {
-        // Build private view arrays matching selected entry type flow rules
-        let matchingPrivateList = [];
-        const fallbackMap = {
-          "Government Salary": "Income", "Locum Income": "Income", "Investment Inflow": "Income", "Others (Income)": "Income",
-          "Personal Food": "Expense", "Car Loan": "Expense", "Petrol & Tolls": "Expense", "Car Maintenance": "Expense",
-          "Insurance": "Expense", "Savings & Investments": "Expense", "Utilities & Subscriptions": "Expense", "Others (Personal)": "Expense"
+        // --- MOCK BACKEND SERVICE ---
+        const apiMock = {
+            save: (tx) => new Promise((resolve, reject) => {
+                setTimeout(() => Math.random() > 0.15 ? resolve({ ...tx, status: 'success' }) : reject('Network Timeout'), 1000);
+            }),
+            delete: (id) => new Promise((resolve, reject) => {
+                setTimeout(() => Math.random() > 0.15 ? resolve() : reject('Failed to delete row'), 900);
+            })
         };
-        
-        const sourceMap = Object.keys(serverPrivateCategoryMap).length > 0 ? serverPrivateCategoryMap : fallbackMap;
-        
-        for (const [catName, catType] of Object.entries(sourceMap)) {
-          if (catType === activeFormFlowType) {
-            matchingPrivateList.push(catName);
-          }
+
+        function App() {
+            // UI State
+            const [activeTab, setActiveTab] = useState(0); // 0 = Expenses, 1 = Balances
+            const [isModalOpen, setIsModalOpen] = useState(false);
+            const [activeProfile, setActiveProfile] = useState('User A');
+            const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
+
+            // Data State
+            const [transactions, setTransactions] = useState([
+                { id: '1', description: 'Dinner at Austin Crest', amount: 120.00, category: 'Food', date: '2026-07-18', paidBy: 'User A', status: 'success' },
+                { id: '2', description: 'Mid Valley Grocery', amount: 85.50, category: 'Groceries', date: '2026-07-17', paidBy: 'User B', status: 'success' }
+            ]);
+
+            // Form Fields
+            const [description, setDescription] = useState('');
+            const [amount, setAmount] = useState('');
+            const [category, setCategory] = useState('Food');
+
+            // Dynamic Config Placeholder
+            const categories = ['Food', 'Groceries', 'Utilities', 'Transport', 'Entertainment'];
+
+            // Initialize icons after render
+            useEffect(() => { if (window.lucide) window.lucide.createIcons(); }, [activeTab, isModalOpen, transactions, isProfileMenuOpen]);
+
+            // --- CRU(D) OPTIMISTIC CREATE ACTION ---
+            const handleAddTransaction = async (e) => {
+                e.preventDefault();
+                if (!description || !amount) return;
+
+                const tempId = `temp-${Date.now()}`;
+                const newTx = {
+                    id: tempId,
+                    description,
+                    amount: parseFloat(amount),
+                    category,
+                    date: new Date().toISOString().split('T')[0],
+                    paidBy: activeProfile,
+                    status: 'syncing'
+                };
+
+                // Optimistic Local Update & Instant Close
+                setTransactions(prev => [newTx, ...prev]);
+                setIsModalOpen(false);
+                setDescription('');
+                setAmount('');
+
+                try {
+                    await apiMock.save(newTx);
+                    setTransactions(prev => prev.map(item => item.id === tempId ? { ...item, status: 'success' } : item));
+                } catch (err) {
+                    alert(`Error syncing transaction: "${newTx.description}". Rollback executed.`);
+                    setTransactions(prev => prev.filter(item => item.id !== tempId));
+                }
+            };
+
+            // --- CRU(D) OPTIMISTIC DELETE ACTION ---
+            const handleDeleteTransaction = async (id, e) => {
+                e.stopPropagation();
+                const targetTx = transactions.find(t => t.id === id);
+                if (!targetTx) return;
+
+                // Optimistic Local Delete
+                setTransactions(prev => prev.filter(item => item.id !== id));
+
+                try {
+                    await apiMock.delete(id);
+                } catch (err) {
+                    alert(`Error removing transaction. Restoring row.`);
+                    setTransactions(prev => [targetTx, ...prev].sort((a, b) => b.id.localeCompare(a.id)));
+                }
+            };
+
+            return (
+                <div className="relative w-screen h-screen flex flex-col justify-between overflow-hidden pb-safe">
+                    
+                    {/* TOP HEADER & FRICTIONLESS PROFILE SWITCHER */}
+                    <header className="h-14 bg-white border-b border-slate-200 px-4 flex justify-between items-center z-40 shrink-0">
+                        <span className="font-extrabold text-lg tracking-tight bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">TricountTrack</span>
+                        
+                        <div className="relative">
+                            <button 
+                                onClick={() => setIsProfileMenuOpen(!isProfileMenuOpen)}
+                                className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-slate-100 hover:bg-slate-200 active:scale-95 transition-all"
+                            >
+                                <span className="w-5 h-5 rounded-full bg-blue-600 text-white text-[11px] font-bold flex items-center justify-center">
+                                    {activeProfile.charAt(5)}
+                                </span>
+                                <span className="text-xs font-semibold text-slate-700">{activeProfile}</span>
+                                <i data-lucide="chevron-down" class="w-3.5 h-3.5 text-slate-500"></i>
+                            </button>
+
+                            {isProfileMenuOpen && (
+                                <div className="absolute right-0 mt-2 w-40 bg-white border border-slate-200 rounded-xl shadow-lg py-1 z-50">
+                                    {['User A', 'User B'].map(profile => (
+                                        <button
+                                            key={profile}
+                                            onClick={() => { setActiveProfile(profile); setIsProfileMenuOpen(false); }}
+                                            className={`w-full text-left px-4 py-2 text-xs font-medium ${activeProfile === profile ? 'bg-blue-50 text-blue-600' : 'text-slate-700 hover:bg-slate-50'}`}
+                                        >
+                                            {profile}
+                                        </button>
+                                    ))}
+                                </div>
+                            )}
+                        </div>
+                    </header>
+
+                    {/* INTERACTIVE SMOOTH LEFT-RIGHT PAGE SLIDER CONTAINER */}
+                    <main className="flex-1 overflow-hidden relative">
+                        <div 
+                            className="slider-wrapper h-full"
+                            style={{ transform: `translateX(-${activeTab * 100}vw)` }}
+                        >
+                            {/* TAB 1 PAGE VIEW: EXPENSES LOADER */}
+                            <div className="page-view no-scrollbar overflow-y-auto p-4 space-y-3">
+                                <div className="flex justify-between items-center mb-1">
+                                    <h2 className="text-sm font-bold text-slate-400 uppercase tracking-wider">Transaction History</h2>
+                                    <span className="text-xs font-medium text-slate-500 bg-slate-200 px-2 py-0.5 rounded-md">Optimistic State</span>
+                                </div>
+
+                                {transactions.length === 0 ? (
+                                    <div className="text-center py-12 text-slate-400 text-sm">No expenses logged yet. Tap + to start.</div>
+                                ) : (
+                                    transactions.map(tx => (
+                                        <div 
+                                            key={tx.id}
+                                            className={`p-4 bg-white border border-slate-100 rounded-2xl shadow-sm flex justify-between items-center transition-all ${tx.status === 'syncing' ? 'opacity-50 border-orange-200 bg-orange-50/20' : ''}`}
+                                        >
+                                            <div className="flex flex-col gap-1">
+                                                <span className="font-semibold text-sm text-slate-800">{tx.description}</span>
+                                                <div className="flex items-center gap-2">
+                                                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-tight bg-slate-100 px-1.5 py-0.5 rounded">{tx.category}</span>
+                                                    <span className="text-[10px] text-slate-400">Paid by {tx.paidBy}</span>
+                                                </div>
+                                            </div>
+                                            <div className="flex items-center gap-3">
+                                                <div className="text-right flex flex-col items-end">
+                                                    <span className="font-bold text-base text-slate-900">RM {tx.amount.toFixed(2)}</span>
+                                                    {tx.status === 'syncing' ? (
+                                                        <span className="text-[10px] text-orange-500 font-medium animate-pulse flex items-center gap-1">
+                                                            <span className="w-1.5 h-1.5 bg-orange-500 rounded-full animate-ping"></span> Syncing
+                                                        </span>
+                                                    ) : (
+                                                        <span className="text-[10px] text-emerald-500 font-medium">Synced</span>
+                                                    )}
+                                                </div>
+                                                <button 
+                                                    onClick={(e) => handleDeleteTransaction(tx.id, e)}
+                                                    className="w-8 h-8 rounded-full bg-slate-50 hover:bg-red-50 text-slate-400 hover:text-red-500 flex items-center justify-center transition-colors"
+                                                >
+                                                    <i data-lucide="trash-2" class="w-4 h-4"></i>
+                                                </button>
+                                            </div>
+                                        </div>
+                                    ))
+                                )}
+                            </div>
+
+                            {/* TAB 2 PAGE VIEW: BALANCES / VAULTS */}
+                            <div className="page-view no-scrollbar overflow-y-auto p-4">
+                                <h2 className="text-sm font-bold text-slate-400 uppercase tracking-wider mb-3">Shared Balance Overview</h2>
+                                <div className="bg-white border border-slate-100 p-6 rounded-2xl shadow-sm text-center space-y-4">
+                                    <div className="w-16 h-16 bg-blue-50 text-blue-600 rounded-full flex items-center justify-center mx-auto">
+                                        <i data-lucide="scale" class="w-8 h-8"></i>
+                                    </div>
+                                    <div>
+                                        <h3 className="font-bold text-base text-slate-800">Everything is balanced</h3>
+                                        <p className="text-xs text-slate-500 mt-1">Shared vaults are configured to run automatically.</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </main>
+
+                    {/* TRICOUNT-INSPIRED FLOATING ENTRY ACTION BUTTON */}
+                    <div className="absolute bottom-20 left-1/2 -translate-x-1/2 z-40">
+                        <button 
+                            onClick={() => setIsModalOpen(true)}
+                            className="w-14 h-14 bg-gradient-to-tr from-blue-600 to-indigo-600 text-white rounded-full shadow-xl shadow-blue-500/20 flex items-center justify-center font-bold text-2xl hover:scale-105 active:scale-95 transition-all"
+                        >
+                            <i data-lucide="plus" class="w-6 h-6"></i>
+                        </button>
+                    </div>
+
+                    {/* FULL SCREEN OPTIMIZED NAV FOOTER BAR */}
+                    <footer className="h-16 bg-white border-t border-slate-200 px-8 flex justify-between items-center z-30 shrink-0">
+                        <button 
+                            onClick={() => setActiveTab(0)}
+                            className={`flex flex-col items-center gap-1 w-20 transition-colors ${activeTab === 0 ? 'text-blue-600 font-semibold' : 'text-slate-400'}`}
+                        >
+                            <i data-lucide="receipt" class="w-5 h-5"></i>
+                            <span className="text-[10px]">Expenses</span>
+                        </button>
+                        <div className="w-16"></div> {/* Spacer for FAB positioning */}
+                        <button 
+                            onClick={() => setActiveTab(1)}
+                            className={`flex flex-col items-center gap-1 w-20 transition-colors ${activeTab === 1 ? 'text-blue-600 font-semibold' : 'text-slate-400'}`}
+                        >
+                            <i data-lucide="wallet" class="w-5 h-5"></i>
+                            <span className="text-[10px]">Balances</span>
+                        </button>
+                    </footer>
+
+                    {/* INSTANT SLIDE-UP OPTIMISTIC ENTRY FORM MODAL */}
+                    {isModalOpen && (
+                        <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-xs flex items-end sm:items-center justify-center z-50 p-0 sm:p-4">
+                            <div className="fixed inset-0" onClick={() => setIsModalOpen(false)}></div>
+                            <form 
+                                onSubmit={handleAddTransaction} 
+                                className="bg-white w-full max-w-md p-6 rounded-t-3xl sm:rounded-2xl space-y-4 shadow-2xl relative z-10 animate-in slide-in-from-bottom duration-200"
+                            >
+                                <div className="w-12 h-1.5 bg-slate-200 rounded-full mx-auto sm:hidden mb-2"></div>
+                                <h3 className="text-base font-bold text-slate-800">Add New Transaction</h3>
+                                
+                                <div className="space-y-1">
+                                    <label className="text-[11px] font-bold text-slate-400 uppercase">Description</label>
+                                    <input 
+                                        type="text" placeholder="e.g. Lunch" required 
+                                        value={description} onChange={(e) => setDescription(e.target.value)}
+                                        className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-blue-500"
+                                    />
+                                </div>
+
+                                <div className="space-y-1">
+                                    <label className="text-[11px] font-bold text-slate-400 uppercase">Amount (RM)</label>
+                                    <input 
+                                        type="number" step="0.01" placeholder="0.00" required 
+                                        value={amount} onChange={(e) => setAmount(e.target.value)}
+                                        className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-blue-500"
+                                    />
+                                </div>
+
+                                <div className="space-y-1">
+                                    <label className="text-[11px] font-bold text-slate-400 uppercase">Category</label>
+                                    <select 
+                                        value={category} onChange={(e) => setCategory(e.target.value)}
+                                        className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-blue-500 appearance-none"
+                                    >
+                                        {categories.map(cat => <option key={cat} value={cat}>{cat}</option>)}
+                                    </select>
+                                </div>
+
+                                <div className="flex justify-between gap-3 pt-2">
+                                    <button 
+                                        type="button" onClick={() => setIsModalOpen(false)} 
+                                        className="w-1/2 p-3 bg-slate-100 hover:bg-slate-200 text-slate-600 font-semibold text-sm rounded-xl transition-colors"
+                                    >
+                                        Cancel
+                                    </button>
+                                    <button 
+                                        type="submit" 
+                                        className="w-1/2 p-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold text-sm rounded-xl transition-colors"
+                                    >
+                                        Save Instantly
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    )}
+                </div>
+            );
         }
-        
-        // Handle standalone Transfer fallback or custom configurations smoothly
-        if (matchingPrivateList.length === 0 && activeFormFlowType === "Transfer") {
-          matchingPrivateList = ["🔄 Move to Savings", "📈 Equity Allocation", "📦 Internal Transfer"];
-        } else if (matchingPrivateList.length === 0) {
-          matchingPrivateList = activeFormFlowType === "Income" ? ["💼 Salary", "💰 Dividends"] : ["🍲 Food", "📦 Personal Exp"];
-        }
-        itemsToRender = matchingPrivateList;
-      }
-      
-      // Build interactive layout cards inside scroll field grid mapping custom names cleanly
-      itemsToRender.forEach((categoryString, idx) => {
-        const itemBtn = document.createElement('div');
-        itemBtn.className = 'category-grid-item';
-        
-        // Splice or preserve emojis if typed directly inside custom database configuration rows
-        let displayIcon = "💵";
-        let displayName = categoryString;
-        
-        // Simple regex checker extracting custom prefix emojis if configured by user
-        const emojiMatch = categoryString.match(/^([^a-zA-Z0-9\s一-龥]+)\s*(.*)$/);
-        if (emojiMatch) {
-          displayIcon = emojiMatch[1];
-          displayName = emojiMatch[2];
-        } else {
-          // Internal UI maps fallback icons based on standard strings if no explicit emoji prefix is detected
-          const standardCleanStr = categoryString.replace(/[^\w\s一-龥]/gi, '').trim();
-          const fallbackEmojis = { "Food": "🍲", "Rent": "🏠", "Utilities": "🔌", "Outing": "🎬", "Salary": "💼", "Locum": "🩺", "Petrol": "⛽", "Car": "🚗", "Insurance": "🛡️", "Savings": "💰" };
-          for (const [key, icon] of Object.entries(fallbackEmojis)) {
-            if (standardCleanStr.toLowerCase().includes(key.toLowerCase())) {
-              displayIcon = icon;
-              break;
-            }
-          }
-        }
-        
-        itemBtn.innerHTML = `<span class="cat-icon">${displayIcon}</span><span>${displayName}</span>`;
-        
-        // Auto select first dynamic column item as starting baseline context target
-        if (idx === 0) {
-          itemBtn.classList.add('selected');
-          activeFormSelectedCategory = categoryString;
-        }
-        
-        itemBtn.onclick = () => {
-          document.querySelectorAll('.category-grid-item').forEach(el => el.classList.remove('selected'));
-          itemBtn.classList.add('selected');
-          activeFormSelectedCategory = categoryString;
-          
-          // CRITICAL TRIGGER ACTION: Set structural focal cursor to text field automatically upon category selection
-          document.getElementById('tx-amount').focus();
-        };
-        
-        gridContainer.appendChild(itemBtn);
-      });
-    }
 
-    async function handleFormSubmit(e) {
-      e.preventDefault();
-      
-      const inputDate = document.getElementById('tx-date').value;
-      const inputDesc = document.getElementById('tx-desc').value || activeFormSelectedCategory;
-      const inputAmount = parseFloat(document.getElementById('tx-amount').value) || 0;
-      
-      const tempId = "temp_" + Date.now();
-      
-      // Inject entry cleanly into UI models optimistically to sustain responsive latency metrics
-      if (activeFormLedgerTarget === "Shared_Ledger") {
-        dataCache.shared.push([tempId, inputDate, inputDesc, inputAmount, activeFormPayer, "Equally", activeFormSelectedCategory]);
-      } else {
-        dataCache.private.push([tempId, inputDate, inputDesc, inputAmount, selectedUserCode, activeFormFlowType, activeFormSelectedCategory]);
-      }
-
-      calculateRunningMetrics();
-      renderFeed();
-      navigateToFeedView();
-      showToast("Entry Recorded!", "success");
-
-      let payload = {
-        action: "CREATE",
-        targetTable: activeFormLedgerTarget,
-        date: inputDate,
-        description: inputDesc,
-        amount: inputAmount,
-        category: activeFormSelectedCategory
-      };
-
-      if (activeFormLedgerTarget === "Shared_Ledger") { 
-        payload.paidBy = activeFormPayer; 
-      } else { 
-        payload.flowType = activeFormFlowType; 
-        payload.operator = selectedUserCode; 
-      }
-
-      const response = await sendToSpreadsheet(payload);
-      if (!response || response.status !== "success") {
-        showToast("Sync Background Fail!", "danger");
-      }
-      syncFetch(); 
-    }
-
-    async function sendToSpreadsheet(payload) {
-      return new Promise((resolve) => {
-        const callbackName = "jsonp_" + Math.round(Math.random() * 1000000);
-        window[callbackName] = function(data) {
-          delete window[callbackName];
-          try { document.body.removeChild(script); } catch(e){}
-          resolve(data);
-        };
-        const encodedPayload = encodeURIComponent(JSON.stringify(payload));
-        const script = document.createElement("script");
-        script.src = `${WEB_APP_URL}?callback=${callbackName}&prefix=${callbackName}&data=${encodedPayload}`;
-        script.onerror = function() {
-          if(window[callbackName]) delete window[callbackName];
-          try { document.body.removeChild(script); } catch(e){}
-          resolve(null);
-        };
-        document.body.appendChild(script);
-      });
-    }
-
-    async function syncFetch() {
-      try {
-        const response = await sendToSpreadsheet({ action: "READ", operator: selectedUserCode });
-        if (response && response.status === "success") {
-          dataCache.shared = response.shared || [];
-          dataCache.private = response.private || [];
-          
-          if (response.sharedCategories) serverSharedCategories = response.sharedCategories;
-          if (response.privateCategoryMap) serverPrivateCategoryMap = response.privateCategoryMap;
-          
-          calculateRunningMetrics();
-          renderFeed();
-        }
-      } catch (err) { console.log("Sync runtime trace captured."); }
-    }
-
-    function calculateRunningMetrics() {
-      let totalShared = 0, bubuPaid = 0, yierPaid = 0;
-      
-      dataCache.shared.forEach(row => {
-        const amt = parseFloat(row[3]) || 0;
-        totalShared += amt;
-        if(row[4] === "CYO") bubuPaid += amt;
-        if(row[4] === "LKS") yierPaid += amt;
-      });
-
-      let privateExp = 0;
-      dataCache.private.forEach(row => {
-        if(row[5] === "Expense") { privateExp += (parseFloat(row[3]) || 0); }
-      });
-
-      const fairShareOfShared = totalShared / 2;
-
-      document.getElementById('val-total-expenses').textContent = `RM ${totalShared.toFixed(2)}`;
-      document.getElementById('val-my-expenses').textContent = `RM ${(privateExp + fairShareOfShared).toFixed(2)}`;
-
-      document.getElementById('bal-bubu-paid').textContent = `RM ${bubuPaid.toFixed(2)}`;
-      document.getElementById('bal-yier-paid').textContent = `RM ${yierPaid.toFixed(2)}`;
-      
-      const sentence = document.getElementById('settlement-sentence');
-      if (bubuPaid > fairShareOfShared) {
-        sentence.textContent = `Yier 🐼 owes Bubu 🐻 RM ${(bubuPaid - fairShareOfShared).toFixed(2)}`;
-      } else if (yierPaid > fairShareOfShared) {
-        sentence.textContent = `Bubu 🐻 owes Yier 🐼 RM ${(yierPaid - fairShareOfShared).toFixed(2)}`;
-      } else {
-        sentence.textContent = `Settled up perfectly!`;
-      }
-    }
-
-    function renderFeed() {
-      const feed = document.getElementById('sub-view-expenses');
-      if (currentSubView !== 'expenses') return;
-      feed.innerHTML = "";
-      
-      const rows = dataCache.shared; 
-      if (!rows || rows.length === 0) {
-        feed.innerHTML = `<p style="text-align:center;color:var(--text-muted);font-size:0.9rem;padding:40px 16px;">No recent expenses tracked.</p>`;
-        return;
-      }
-
-      const grouped = {};
-      rows.forEach(row => {
-        const dateStr = row[1];
-        if(!grouped[dateStr]) grouped[dateStr] = [];
-        grouped[dateStr].push(row);
-      });
-
-      Object.keys(grouped).sort().reverse().forEach(dateKey => {
-        const title = document.createElement('div');
-        title.className = 'date-group-title';
-        
-        const targetDate = new Date(dateKey).setHours(0,0,0,0);
-        const today = new Date().setHours(0,0,0,0);
-        const yesterday = new Date(today).setDate(new Date().getDate() - 1);
-        
-        if(targetDate === today) title.textContent = "Today";
-        else if(targetDate === yesterday) title.textContent = "Yesterday";
-        else title.textContent = new Date(dateKey).toLocaleDateString('en-SG', {day:'numeric', month:'short', year:'numeric'});
-        
-        feed.appendChild(title);
-
-        grouped[dateKey].reverse().forEach(row => {
-          const card = document.createElement('div');
-          card.className = 'tx-card-row';
-          if(String(row[0]).startsWith("temp_")) { card.style.opacity = "0.5"; }
-
-          // Read custom configured emoji prefix or extract standard fallback markers
-          let cellEmoji = "💵";
-          const emojiMatch = row[6].match(/^([^a-zA-Z0-9\s一-龥]+)/);
-          if (emojiMatch) {
-            cellEmoji = emojiMatch[1];
-          } else {
-            const fallbackEmojis = { "Food": "🍲", "Rent": "🏠", "Utilities": "🔌", "Outing": "🎬", "Salary": "💼", "Locum": "🩺", "Petrol": "⛽", "Car": "🚗", "Insurance": "🛡️", "Savings": "💰" };
-            for (const [key, icon] of Object.entries(fallbackEmojis)) {
-              if (row[6].toLowerCase().includes(key.toLowerCase())) { cellEmoji = icon; break; }
-            }
-          }
-          
-          const payer = row[4] === "CYO" ? "布布" : "一二";
-          
-          card.innerHTML = `
-            <div class="tx-card-left">
-              <div class="tx-icon-wrapper">${cellEmoji}</div>
-              <div class="tx-meta">
-                <h4>${row[2]} ${String(row[0]).startsWith("temp_") ? "<span style='font-size:0.75rem;color:var(--accent-blue);'>🕒</span>" : ""}</h4>
-                <p>Paid by ${payer} • ${row[6]}</p>
-              </div>
-            </div>
-            <div class="tx-card-right">
-              <span class="tx-card-value">RM ${parseFloat(row[3]).toFixed(2)}</span>
-              <button class="card-trash-btn" onclick="deleteRecord('${row[0]}')">🗑️</button>
-            </div>
-          `;
-          feed.appendChild(card);
-        });
-      });
-    }
-
-    async function deleteRecord(rowId) {
-      if (String(rowId).startsWith("temp_")) return;
-      if (!confirm("Delete this entry permanently?")) return;
-      
-      dataCache.shared = dataCache.shared.filter(r => r[0] !== rowId);
-      calculateRunningMetrics();
-      renderFeed();
-
-      await sendToSpreadsheet({ action: "DELETE", targetTable: "Shared_Ledger", rowId: rowId });
-      showToast("Deleted.", "success");
-      syncFetch();
-    }
-
-    function showToast(text, type) {
-      const toast = document.getElementById('toast');
-      toast.textContent = text;
-      toast.className = "show";
-      setTimeout(() => toast.className = "", 2000);
-    }
-  </script>
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
 </body>
 </html>
