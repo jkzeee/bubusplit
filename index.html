@@ -177,8 +177,7 @@
       padding: 4px;
       border-radius: 99px;
       width: 100%;
-      max-width: 340px;
-      margin-bottom: 24px;
+      margin-bottom: 16px;
       flex-shrink: 0;
     }
 
@@ -226,7 +225,6 @@
       font-weight: 700;
     }
 
-    /* HORIZONTAL SLIDER VIEWPORT & NATIVE MOBILE SCROLL PIPELINE */
     .slider-viewport {
       width: 100%;
       overflow: hidden;
@@ -253,7 +251,7 @@
       padding: 4px 16px 140px 16px; 
       display: flex;
       flex-direction: column;
-      gap: 16px;
+      gap: 12px;
     }
 
     .date-group-title {
@@ -265,15 +263,44 @@
       padding-left: 4px;
     }
 
-    /* CARD TEXT WRAPPING FIXES */
+    /* iOS SWIPE TO DELETE LAYOUT */
+    .swipe-container {
+      position: relative;
+      width: 100%;
+      border-radius: 16px;
+      overflow: hidden;
+      background-color: var(--danger-red);
+      user-select: none;
+    }
+
+    .swipe-delete-action-underlay {
+      position: absolute;
+      top: 0;
+      right: 0;
+      height: 100%;
+      width: 80px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      color: #ffffff;
+      font-size: 0.85rem;
+      font-weight: 700;
+      z-index: 1;
+      letter-spacing: 0.5px;
+    }
+
     .tx-card-row {
       background-color: var(--bg-card);
-      border-radius: 16px;
       padding: 14px 16px;
       display: flex;
       justify-content: space-between;
       align-items: center;
       gap: 12px;
+      position: relative;
+      z-index: 2;
+      transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+      will-change: transform;
+      transform: translateX(0px);
     }
 
     .tx-card-left {
@@ -322,7 +349,6 @@
     .tx-card-right {
       display: flex;
       align-items: center;
-      gap: 12px;
       flex-shrink: 0; 
       text-align: right;
     }
@@ -331,20 +357,6 @@
       font-size: 1.05rem;
       font-weight: 700;
       white-space: nowrap;
-    }
-
-    .card-trash-btn {
-      background: none;
-      border: none;
-      font-size: 1.1rem;
-      cursor: pointer;
-      padding: 4px;
-      opacity: 0.4;
-      transition: opacity 0.2s;
-    }
-    
-    .card-trash-btn:active {
-      opacity: 1;
     }
 
     .balance-card-box {
@@ -365,7 +377,6 @@
       line-height: 1.4;
     }
 
-    /* VIEWPORT FIXED FLOATING ACTION BUTTON WITH LAYER ISOLATION */
     .floating-action-anchor {
       position: fixed; 
       bottom: calc(30px + env(safe-area-inset-bottom)); 
@@ -389,45 +400,47 @@
       align-items: center;
     }
 
-    /* FORM SYSTEM STYLES */
+    /* ZERO-SCROLL TIGHT TRANSACTION FORM VIEWS */
     .form-view-container {
-      padding: 16px 16px 40px 16px;
+      padding: calc(12px + env(safe-area-inset-top)) 16px 20px 16px;
       display: flex;
       flex-direction: column;
-      gap: 20px;
+      gap: 10px;
       height: 100%;
-      overflow-y: auto;
+      overflow-y: hidden; /* Completely eliminates scrolling on the input layer */
     }
 
     .form-navigation-header {
       display: flex;
       align-items: center;
-      gap: 16px;
-      padding: 8px 0;
+      padding: 0;
+      margin-bottom: -4px;
     }
 
     .back-arrow-btn {
       background: none;
       border: none;
       color: var(--accent-blue);
-      font-size: 1.6rem;
+      font-size: 1.8rem;
       cursor: pointer;
-      padding: 4px 8px 4px 0;
+      padding: 4px 12px 4px 0;
+      font-weight: 500;
     }
 
-    .form-title-text {
-      font-size: 1.3rem;
-      font-weight: 700;
+    #ledger-form {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
     }
 
     .form-group {
       display: flex;
       flex-direction: column;
-      gap: 6px;
+      gap: 4px;
     }
 
     .form-group label {
-      font-size: 0.75rem;
+      font-size: 0.72rem;
       color: var(--text-muted);
       text-transform: uppercase;
       letter-spacing: 0.6px;
@@ -439,9 +452,9 @@
       background-color: var(--bg-input);
       border: 1px solid transparent;
       color: var(--text-main);
-      padding: 14px;
-      font-size: 1rem;
-      border-radius: 12px;
+      padding: 10px 12px;
+      font-size: 0.95rem;
+      border-radius: 10px;
       outline: none;
     }
 
@@ -450,62 +463,56 @@
     }
 
     .collapsible-payer-row {
-      max-height: 110px;
+      max-height: 50px;
       opacity: 1;
       transform: scaleY(1);
       transform-origin: top;
       will-change: max-height, opacity, transform, margin;
-      transition: max-height 0.28s cubic-bezier(0.4, 0, 0.2, 1),
-                  opacity 0.24s cubic-bezier(0.4, 0, 0.2, 1),
-                  transform 0.28s cubic-bezier(0.4, 0, 0.2, 1),
-                  margin 0.28s cubic-bezier(0.4, 0, 0.2, 1);
+      transition: max-height 0.2s cubic-bezier(0.4, 0, 0.2, 1),
+                  opacity 0.18s cubic-bezier(0.4, 0, 0.2, 1),
+                  transform 0.2s cubic-bezier(0.4, 0, 0.2, 1),
+                  margin 0.2s cubic-bezier(0.4, 0, 0.2, 1);
     }
 
     .collapsible-payer-row.collapsed {
       max-height: 0px !important;
       opacity: 0 !important;
       transform: scaleY(0.9) translateY(-10px) !important;
-      margin-bottom: -6px !important;
+      margin-bottom: -4px !important;
       pointer-events: none;
     }
 
+    /* COMPACT 4-COLUMN ZERO-SCROLL CATEGORY SELECTION */
     .category-grid-container {
       display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 10px;
-      max-height: 220px;
-      overflow-y: auto;
-      padding: 4px 2px;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 6px;
+      padding: 2px 0;
       will-change: opacity, transform;
-      transition: opacity 0.22s cubic-bezier(0.4, 0, 0.2, 1),
-                  transform 0.22s cubic-bezier(0.4, 0, 0.2, 1);
+      transition: opacity 0.15s ease, transform 0.15s ease;
     }
 
     .category-grid-container.morphing {
       opacity: 0;
-      transform: scale(0.97);
+      transform: scale(0.98);
     }
 
     .category-grid-item {
       background-color: var(--bg-card);
       border: 2px solid transparent;
-      border-radius: 12px;
-      padding: 12px 6px;
+      border-radius: 10px;
+      padding: 8px 4px;
       text-align: center;
-      font-size: 0.85rem;
-      font-weight: 500;
+      font-size: 0.72rem;
+      font-weight: 600;
       color: var(--text-main);
       cursor: pointer;
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      gap: 6px;
-      transition: all 0.15s ease;
-    }
-
-    .category-grid-item:active {
-      transform: scale(0.96);
+      gap: 4px;
+      line-height: 1.1;
     }
 
     .category-grid-item.selected {
@@ -514,7 +521,7 @@
     }
 
     .category-grid-item .cat-icon {
-      font-size: 1.4rem;
+      font-size: 1.2rem;
     }
 
     .sheet-submit-btn {
@@ -522,12 +529,12 @@
       background-color: var(--accent-blue);
       color: white;
       border: none;
-      padding: 16px;
-      font-size: 1.05rem;
+      padding: 14px;
+      font-size: 1rem;
       font-weight: 600;
-      border-radius: 14px;
+      border-radius: 12px;
       cursor: pointer;
-      margin-top: 10px;
+      margin-top: 4px;
       box-shadow: 0 4px 12px rgba(10, 132, 255, 0.2);
     }
 
@@ -599,12 +606,9 @@
         </div>
       </div>
 
-      <!-- SLIDER VIEWPORT WRAPPER -->
       <div class="slider-viewport">
         <div class="slider-track" id="main-slider-track">
-          
           <div class="content-scroll-zone" id="sub-view-expenses"></div>
-
           <div class="content-scroll-zone" id="sub-view-balances">
             <div class="balance-card-box">
               <div style="display:flex; justify-content:space-between; margin-bottom:14px; font-size:0.95rem;">
@@ -621,46 +625,43 @@
           </div>
         </div>
       </div>
+    </div>
 
-    </div> <!-- End of main-view -->
-
-    <!-- TRANSACTION ENTRY FORM VIEW -->
+    <!-- TRANSACTION ENTRY FORM VIEW (NO SCROLL / TIDY COMPACT LAYER) -->
     <div id="form-view" class="view-section">
       <div class="form-view-container">
         
         <div class="form-navigation-header">
-          <button class="back-arrow-btn" onclick="navigateToFeedView()">←</button>
-          <div class="form-title-text">Add New Transaction</div>
+          <button class="back-arrow-btn" onclick="navigateToFeedView()">← Back</button>
         </div>
 
         <form id="ledger-form" onsubmit="handleFormSubmit(event)">
           
           <div class="form-group">
-            <div class="segmented-control" style="max-width:100%; margin-bottom:4px;">
+            <div class="segmented-control" style="margin-bottom:0px; background-color: var(--bg-input);">
               <button class="segment-tab active" id="type-tab-expense" type="button" onclick="changeFormFlowType('Expense')">Expenses</button>
               <button class="segment-tab" id="type-tab-income" type="button" onclick="changeFormFlowType('Income')">Income</button>
               <button class="segment-tab" id="type-tab-transfer" type="button" onclick="changeFormFlowType('Transfer')">Transfer</button>
             </div>
           </div>
 
-          <div class="form-group" style="margin-bottom: 6px;">
-            <label>Select Category</label>
+          <div class="form-group">
+            <label>Category</label>
             <div class="category-grid-container" id="category-grid-box"></div>
           </div>
 
           <div class="form-group">
             <label>Ledger Target</label>
-            <div class="segmented-control" style="max-width:100%; margin-bottom: 4px; background-color: var(--bg-dark); padding: 4px;">
+            <div class="segmented-control" style="margin-bottom: 0px; background-color: var(--bg-input); padding: 4px;">
               <button class="segment-tab active" id="target-tab-shared" type="button" onclick="setFormLedgerTarget('Shared_Ledger')">Joint Ledger</button>
               <button class="segment-tab" id="target-tab-private" type="button" onclick="setFormLedgerTarget('Private_Ledger')">Private Vault</button>
             </div>
           </div>
 
           <div class="form-group collapsible-payer-row" id="form-payer-block">
-            <label>Who Paid?</label>
-            <div class="segmented-control" style="max-width:100%; margin-bottom: 4px; background-color: var(--bg-dark); padding: 4px;">
-              <button class="segment-tab" id="payer-btn-CYO" type="button" onclick="setFormPayer('CYO')">🐻 布布</button>
-              <button class="segment-tab" id="payer-btn-LKS" type="button" onclick="setFormPayer('LKS')">🐼 一二</button>
+            <div class="segmented-control" style="margin-bottom: 0px; background-color: var(--bg-input); padding: 4px;">
+              <button class="segment-tab" id="payer-btn-CYO" type="button" onclick="setFormPayer('CYO')">🐻 布布 Paid</button>
+              <button class="segment-tab" id="payer-btn-LKS" type="button" onclick="setFormPayer('LKS')">🐼 一二 Paid</button>
             </div>
           </div>
 
@@ -671,7 +672,7 @@
 
           <div class="form-group">
             <label>Description</label>
-            <input type="text" id="tx-desc" class="form-control" placeholder="Optional notes/details">
+            <input type="text" id="tx-desc" class="form-control" placeholder="Optional descriptions">
           </div>
 
           <div class="form-group">
@@ -685,9 +686,8 @@
       </div>
     </div>
 
-  </div> <!-- End of app-container -->
+  </div>
 
-  <!-- ROOT LEVEL VIEWPORT ANCHORED FAB FOR iOS STANDALONE RELIABILITY -->
   <div class="floating-action-anchor" id="global-fab-container" style="display: none;">
     <button class="fab-btn" onclick="navigateToFormView()">
       <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="3" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
@@ -710,6 +710,11 @@
     let activeFormLedgerTarget = "Shared_Ledger"; 
     let activeFormSelectedCategory = "";
     let activeFormPayer = "";
+
+    // SWIPE STATE CONTROLLERS
+    let touchStartX = 0;
+    let touchCurrentX = 0;
+    let activeSwipeRow = null;
 
     document.getElementById('tx-date').valueAsDate = new Date();
 
@@ -806,7 +811,7 @@
       setTimeout(() => {
         renderFormCategoriesGrid();
         grid.classList.remove('morphing');
-      }, 160);
+      }, 100);
     }
 
     function setFormPayer(payerCode) {
@@ -822,21 +827,21 @@
       let itemsToRender = [];
       
       if (activeFormLedgerTarget === "Shared_Ledger") {
-        const fallbacks = ["🍲 Food & Groceries", "🏠 House Rent", "🔌 Utilities & Subscriptions", "🎬 Outing / Dates", "📈 Shared Projects / Goals", "📦 Others (Shared)"];
+        const fallbacks = ["🍲 Food", "🏠 Rent", "🔌 Bills", "🎬 Dates", "📈 Project", "📦 Other"];
         itemsToRender = serverSharedCategories.length > 0 ? serverSharedCategories : fallbacks;
       } else {
         let matchingPrivateList = [];
         const fallbackMap = {
-          "Government Salary": "Income", "Locum Income": "Income", "Investment Inflow": "Income", "Others (Income)": "Income",
-          "Personal Food": "Expense", "Car Loan": "Expense", "Petrol & Tolls": "Expense", "Car Maintenance": "Expense",
-          "Insurance": "Expense", "Savings & Investments": "Expense", "Utilities & Subscriptions": "Expense", "Others (Personal)": "Expense"
+          "Salary": "Income", "Locum": "Income", "Invest": "Income", "Other Inc": "Income",
+          "Food": "Expense", "Car Loan": "Expense", "Petrol": "Expense", "Repair": "Expense",
+          "Insurance": "Expense", "Savings": "Expense", "Bills": "Expense", "Personal": "Expense"
         };
         const sourceMap = Object.keys(serverPrivateCategoryMap).length > 0 ? serverPrivateCategoryMap : fallbackMap;
         for (const [catName, catType] of Object.entries(sourceMap)) {
           if (catType === activeFormFlowType) matchingPrivateList.push(catName);
         }
         if (matchingPrivateList.length === 0 && activeFormFlowType === "Transfer") {
-          matchingPrivateList = ["🔄 Move to Savings", "📈 Equity Allocation", "📦 Internal Transfer"];
+          matchingPrivateList = ["💰 Vault", "📈 Stocks", "🔄 Trans"];
         }
         itemsToRender = matchingPrivateList;
       }
@@ -853,7 +858,7 @@
           displayName = emojiMatch[2];
         } else {
           const standardCleanStr = categoryString.replace(/[^\w\s一-龥]/gi, '').trim();
-          const fallbackEmojis = { "Food": "🍲", "Rent": "🏠", "Utilities": "🔌", "Outing": "🎬", "Salary": "💼", "Locum": "🩺", "Petrol": "⛽", "Car": "🚗", "Insurance": "🛡️", "Savings": "💰" };
+          const fallbackEmojis = { "Food": "🍲", "Rent": "🏠", "Bills": "🔌", "Utilities": "🔌", "Date": "🎬", "Salary": "💼", "Locum": "🩺", "Petrol": "⛽", "Car": "🚗", "Insurance": "🛡️", "Savings": "💰" };
           for (const [key, icon] of Object.entries(fallbackEmojis)) {
             if (standardCleanStr.toLowerCase().includes(key.toLowerCase())) { displayIcon = icon; break; }
           }
@@ -869,9 +874,52 @@
           document.querySelectorAll('.category-grid-item').forEach(el => el.classList.remove('selected'));
           itemBtn.classList.add('selected');
           activeFormSelectedCategory = categoryString;
-          document.getElementById('tx-amount').focus();
+          // REMOVED AUTOMATIC AUTO-SCROLL/FOCUS BEHAVIOR TO PREVENT SCREEN SHIFTING
         };
         gridContainer.appendChild(itemBtn);
+      });
+    }
+
+    // SWIPE INTERACTIVE HANDLERS FOR MOBILE DEVICES
+    function initSwipeRowGestures(rowElement, rowId) {
+      rowElement.addEventListener('touchstart', (e) => {
+        // If another item is open, snap it back first
+        if (activeSwipeRow && activeSwipeRow !== rowElement) {
+          activeSwipeRow.style.transform = "translateX(0px)";
+        }
+        touchStartX = e.touches[0].clientX;
+      }, { passive: true });
+
+      rowElement.addEventListener('touchmove', (e) => {
+        touchCurrentX = e.touches[0].clientX;
+        let deltaX = touchCurrentX - touchStartX;
+        
+        // Lock swipe to left directions only
+        if (deltaX < 0) {
+          let dragAmount = Math.max(deltaX, -100);
+          rowElement.style.transform = `translateX(${dragAmount}px)`;
+          rowElement.style.transition = "none";
+        } else if (deltaX > 0 && rowElement.style.transform !== "translateX(0px)") {
+          // Allow swiping back to the right to reset view card
+          let dragAmount = Math.min(-80 + deltaX, 0);
+          rowElement.style.transform = `translateX(${dragAmount}px)`;
+          rowElement.style.transition = "none";
+        }
+      }, { passive: true });
+
+      rowElement.addEventListener('touchend', (e) => {
+        rowElement.style.transition = "transform 0.2s cubic-bezier(0.16, 1, 0.3, 1)";
+        let deltaX = touchCurrentX - touchStartX;
+        
+        if (deltaX < -45) {
+          // Snap fully to expose delete panel
+          rowElement.style.transform = "translateX(-80px)";
+          activeSwipeRow = rowElement;
+        } else {
+          // Snap back safely to start position
+          rowElement.style.transform = "translateX(0px)";
+          if (activeSwipeRow === rowElement) activeSwipeRow = null;
+        }
       });
     }
 
@@ -982,6 +1030,9 @@
       const feed = document.getElementById('sub-view-expenses');
       if (!feed) return;
       feed.innerHTML = "";
+      
+      activeSwipeRow = null; // Clean swipe context references
+      
       const rows = dataCache.shared; 
       if (!rows || rows.length === 0) {
         feed.innerHTML = `<p style="text-align:center;color:var(--text-muted);font-size:0.9rem;padding:40px 16px;">No recent expenses tracked.</p>`;
@@ -1008,6 +1059,15 @@
         feed.appendChild(title);
 
         grouped[dateKey].reverse().forEach(row => {
+          const swipeContainer = document.createElement('div');
+          swipeContainer.className = 'swipe-container';
+
+          // Hidden Native Action Panel underneath row
+          const underlay = document.createElement('div');
+          underlay.className = 'swipe-delete-action-underlay';
+          underlay.textContent = "Delete";
+          underlay.onclick = () => deleteRecord(`${row[0]}`);
+
           const card = document.createElement('div');
           card.className = 'tx-card-row';
           if(String(row[0]).startsWith("temp_")) card.style.opacity = "0.5";
@@ -1017,7 +1077,7 @@
           if (emojiMatch) {
             cellEmoji = emojiMatch[1];
           } else {
-            const fallbackEmojis = { "Food": "🍲", "Rent": "🏠", "Utilities": "🔌", "Outing": "🎬", "Salary": "💼", "Locum": "🩺", "Petrol": "⛽", "Car": "🚗", "Insurance": "🛡️", "Savings": "💰" };
+            const fallbackEmojis = { "Food": "🍲", "Rent": "🏠", "Bills": "🔌", "Utilities": "🔌", "Date": "🎬", "Salary": "💼", "Locum": "🩺", "Petrol": "⛽", "Car": "🚗", "Insurance": "🛡️", "Savings": "💰" };
             for (const [key, icon] of Object.entries(fallbackEmojis)) {
               if (row[6].toLowerCase().includes(key.toLowerCase())) { cellEmoji = icon; break; }
             }
@@ -1034,17 +1094,26 @@
             </div>
             <div class="tx-card-right">
               <span class="tx-card-value">RM ${parseFloat(row[3]).toFixed(2)}</span>
-              <button class="card-trash-btn" onclick="deleteRecord('${row[0]}')">🗑️</button>
             </div>
           `;
-          feed.appendChild(card);
+          
+          // Wire up structural layout nodes
+          swipeContainer.appendChild(underlay);
+          swipeContainer.appendChild(card);
+          feed.appendChild(swipeContainer);
+
+          // Instantiate high-performance mobile touch events
+          initSwipeRowGestures(card, row[0]);
         });
       });
     }
 
     async function deleteRecord(rowId) {
       if (String(rowId).startsWith("temp_")) return;
-      if (!confirm("Delete this entry permanently?")) return;
+      if (!confirm("Delete this entry permanently?")) {
+        if (activeSwipeRow) activeSwipeRow.style.transform = "translateX(0px)";
+        return;
+      }
       dataCache.shared = dataCache.shared.filter(r => r[0] !== rowId);
       calculateRunningMetrics();
       renderFeed();
