@@ -711,9 +711,9 @@
       selectedUserCode = userCode;
       document.getElementById('header-avatar').textContent = userCode === "CYO" ? "🐻" : "🐼";
       
-      // Clean cross-fade switch
       document.getElementById('auth-view').classList.remove('active');
       document.getElementById('main-view').classList.add('active');
+      document.getElementById('global-fab-container').style.display = 'block'; // Show FAB
       syncFetch();
     }
 
@@ -721,6 +721,7 @@
       selectedUserCode = "";
       document.getElementById('main-view').classList.remove('active');
       document.getElementById('auth-view').classList.add('active');
+      document.getElementById('global-fab-container').style.display = 'none'; // Hide FAB
     }
 
     function setSubView(target) {
@@ -739,9 +740,9 @@
 
     // UPDATED INTER-SCREEN ROUTING VIA TRANSITIONS
     function navigateToFormView() {
-      // Form slides up gracefully while main view scales back cleanly
       document.getElementById('main-view').classList.remove('active');
       document.getElementById('form-view').classList.add('active');
+      document.getElementById('global-fab-container').style.display = 'none'; // Hide FAB
       
       activeFormFlowType = "Expense";
       activeFormLedgerTarget = "Shared_Ledger";
@@ -751,13 +752,13 @@
       document.getElementById('tx-amount').value = "";
       document.getElementById('tx-desc').value = "";
       
-      renderFormCategoriesGrid();
-      updateFormUIVisibility();
+      animateFormMaturityTransition();
     }
 
     function navigateToFeedView() {
       document.getElementById('form-view').classList.remove('active');
       document.getElementById('main-view').classList.add('active');
+      document.getElementById('global-fab-container').style.display = 'block'; // Show FAB again
     }
 
     function changeFormFlowType(type) {
