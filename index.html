@@ -32,9 +32,10 @@
       display: flex;
       justify-content: center;
       min-height: 100vh;
-      overflow: hidden; /* Prevents bounce scroll during macro transitions */
+      /* Replaced overflow: hidden with auto to allow standalone wrappers to negotiate touch event pass-throughs */
+      overflow: auto; 
     }
-
+    
     .app-container {
       width: 100%;
       max-width: 440px;
@@ -43,7 +44,40 @@
       display: flex;
       flex-direction: column;
       height: 100vh;
-      overflow: hidden; 
+      /* Fixes touch event discarding inside standalone web apps */
+      height: -webkit-fill-available; 
+    }
+
+        /* HORIZONTAL SLIDER VIEWPORT & NATIVE MOBILE SCROLL PIPELINE */
+    .slider-viewport {
+      width: 100%;
+      overflow: hidden;
+      flex-grow: 1;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      /* Tells iOS standalone mode that child structural containers handle the scrolling */
+      touch-action: pan-y; 
+    }
+    
+    .slider-track {
+      display: flex;
+      width: 200%;
+      height: 100%;
+      transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+      will-change: transform;
+    }
+    
+    .content-scroll-zone {
+      width: 50%;
+      height: 100%;
+      /* Force standalone container to yield scrolling control to iOS touch inertia */
+      overflow-y: auto !important;
+      -webkit-overflow-scrolling: touch; 
+      padding: 4px 16px 140px 16px; /* Added extra bottom padding to clear the iOS home indicator bar */
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
     }
 
     /* --- GLOBAL VIEW TRANSITION CONFIG ARCHITECTURE --- */
