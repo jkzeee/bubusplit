@@ -32,7 +32,7 @@
       display: flex;
       justify-content: center;
       min-height: 100vh;
-      overflow: hidden;
+      overflow: hidden; /* Prevents bounce scroll during macro transitions */
     }
 
     .app-container {
@@ -46,7 +46,7 @@
       overflow: hidden; 
     }
 
-    /* GLOBAL VIEW TRANSITIONS */
+    /* --- GLOBAL VIEW TRANSITION CONFIG ARCHITECTURE --- */
     .view-section {
       position: absolute;
       top: 0;
@@ -55,6 +55,8 @@
       height: 100%;
       display: flex;
       flex-direction: column;
+      
+      /* Hardware-accelerated transitions */
       opacity: 0;
       pointer-events: none;
       transform: scale(0.96);
@@ -70,6 +72,7 @@
       z-index: 10;
     }
 
+    /* Specific smooth slide up for the transaction form view */
     #form-view {
       transform: translateY(30px);
       opacity: 0;
@@ -78,6 +81,7 @@
       transform: translateY(0);
       opacity: 1;
     }
+    /* -------------------------------------------------- */
 
     /* PROFILE SELECT VIEW */
     #auth-view {
@@ -223,7 +227,7 @@
       font-weight: 700;
     }
 
-    /* HORIZONTAL SLIDER SYSTEM PIPELINES */
+    /* --- HORIZONTAL SLIDER SYSTEM PIPELINES --- */
     .slider-viewport {
       width: 100%;
       overflow: hidden;
@@ -249,6 +253,7 @@
       flex-direction: column;
       gap: 20px;
     }
+    /* ------------------------------------------- */
 
     .date-group-title {
       font-size: 0.95rem;
@@ -360,7 +365,7 @@
       align-items: center;
     }
 
-    /* FORM VIEW SYSTEM CONTROLS */
+    /* DEDICATED FULL SCREEN TRANSACTION INPUT VIEW */
     .form-view-container {
       padding: 16px 16px 40px 16px;
       display: flex;
@@ -420,27 +425,7 @@
       border-color: var(--accent-blue);
     }
 
-    /* --- FORM SUB-VIEW SMOOTH INTERIOR TRANSITIONS --- */
-    .collapsible-payer-row {
-      max-height: 110px;
-      opacity: 1;
-      transform: scaleY(1);
-      transform-origin: top;
-      will-change: max-height, opacity, transform, margin;
-      transition: max-height 0.28s cubic-bezier(0.4, 0, 0.2, 1),
-                  opacity 0.24s cubic-bezier(0.4, 0, 0.2, 1),
-                  transform 0.28s cubic-bezier(0.4, 0, 0.2, 1),
-                  margin 0.28s cubic-bezier(0.4, 0, 0.2, 1);
-    }
-
-    .collapsible-payer-row.collapsed {
-      max-height: 0px !important;
-      opacity: 0 !important;
-      transform: scaleY(0.9) translateY(-10px) !important;
-      margin-bottom: -6px !important; /* Counteract spacing gaps cleanly */
-      pointer-events: none;
-    }
-
+    /* GRID CATEGORIES CONFIG */
     .category-grid-container {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
@@ -448,16 +433,7 @@
       max-height: 220px;
       overflow-y: auto;
       padding: 4px 2px;
-      will-change: opacity, transform;
-      transition: opacity 0.22s cubic-bezier(0.4, 0, 0.2, 1),
-                  transform 0.22s cubic-bezier(0.4, 0, 0.2, 1);
     }
-
-    .category-grid-container.morphing {
-      opacity: 0;
-      transform: scale(0.97);
-    }
-    /* -------------------------------------------------- */
 
     .category-grid-item {
       background-color: var(--bg-card);
@@ -575,8 +551,11 @@
       <!-- SLIDER VIEWPORT WRAPPER -->
       <div class="slider-viewport">
         <div class="slider-track" id="main-slider-track">
+          
+          <!-- Feed Container lists (Expenses View) -->
           <div class="content-scroll-zone" id="sub-view-expenses"></div>
 
+          <!-- Balances Split metrics View -->
           <div class="content-scroll-zone" id="sub-view-balances">
             <div class="balance-card-box">
               <div style="display:flex; justify-content:space-between; margin-bottom:14px; font-size:0.95rem;">
@@ -591,6 +570,7 @@
               <div class="settlement-alert" id="settlement-sentence">Calculating balance splits...</div>
             </div>
           </div>
+
         </div>
       </div>
 
@@ -622,7 +602,7 @@
             </div>
           </div>
 
-          <!-- DYNAMIC GRID CATEGORY PICKER (WITH INSTALLED CROSS-FADE ARCHITECTURE) -->
+          <!-- DYNAMIC GRID CATEGORY PICKER -->
           <div class="form-group" style="margin-bottom: 6px;">
             <label>Select Category</label>
             <div class="category-grid-container" id="category-grid-box"></div>
@@ -637,8 +617,8 @@
             </div>
           </div>
 
-          <!-- WHO PAID SPLIT TOGGLE (UPGRADED TO SMOOTH HEIGHT SLIDER FRAME) -->
-          <div class="form-group collapsible-payer-row" id="form-payer-block">
+          <!-- WHO PAID SPLIT TOGGLE -->
+          <div class="form-group" id="form-payer-block">
             <label>Who Paid?</label>
             <div class="segmented-control" style="max-width:100%; margin-bottom: 4px; background-color: var(--bg-dark); padding: 4px;">
               <button class="segment-tab" id="payer-btn-CYO" type="button" onclick="setFormPayer('CYO')">🐻 布布</button>
@@ -693,6 +673,7 @@
       selectedUserCode = userCode;
       document.getElementById('header-avatar').textContent = userCode === "CYO" ? "🐻" : "🐼";
       
+      // Clean cross-fade switch
       document.getElementById('auth-view').classList.remove('active');
       document.getElementById('main-view').classList.add('active');
       syncFetch();
@@ -718,7 +699,9 @@
       renderFeed();
     }
 
+    // UPDATED INTER-SCREEN ROUTING VIA TRANSITIONS
     function navigateToFormView() {
+      // Form slides up gracefully while main view scales back cleanly
       document.getElementById('main-view').classList.remove('active');
       document.getElementById('form-view').classList.add('active');
       
@@ -730,7 +713,8 @@
       document.getElementById('tx-amount').value = "";
       document.getElementById('tx-desc').value = "";
       
-      animateFormMaturityTransition();
+      renderFormCategoriesGrid();
+      updateFormUIVisibility();
     }
 
     function navigateToFeedView() {
@@ -745,15 +729,13 @@
       document.getElementById('type-tab-transfer').classList.toggle('active', type === 'Transfer');
       
       if (type === 'Transfer' || type === 'Income') {
-        activeFormLedgerTarget = 'Private_Ledger';
+        setFormLedgerTarget('Private_Ledger');
       } else {
-        activeFormLedgerTarget = 'Shared_Ledger';
+        setFormLedgerTarget('Shared_Ledger');
       }
       
-      document.getElementById('target-tab-shared').classList.toggle('active', activeFormLedgerTarget === 'Shared_Ledger');
-      document.getElementById('target-tab-private').classList.toggle('active', activeFormLedgerTarget === 'Private_Ledger');
-      
-      animateFormMaturityTransition();
+      renderFormCategoriesGrid();
+      updateFormUIVisibility();
     }
 
     function setFormLedgerTarget(target) {
@@ -761,35 +743,23 @@
       document.getElementById('target-tab-shared').classList.toggle('active', target === 'Shared_Ledger');
       document.getElementById('target-tab-private').classList.toggle('active', target === 'Private_Ledger');
       
-      animateFormMaturityTransition();
-    }
-
-    // NEW SMOOTH COMPONENT ORCHESTRATOR FOR GRID FADES & COMPACT PAYER SHIFTS
-    function animateFormMaturityTransition() {
-      const grid = document.getElementById('category-grid-box');
-      
-      // Trigger out-morph animation sequence
-      grid.classList.add('morphing');
-      
-      // Toggle Payer visibility smoothly via height sliders instead of hard hiding
-      const payerBlock = document.getElementById('form-payer-block');
-      if (activeFormLedgerTarget === 'Shared_Ledger') {
-        payerBlock.classList.remove('collapsed');
-      } else {
-        payerBlock.classList.add('collapsed');
-      }
-
-      // Re-populate and fade back grid inside the frame timing intervals
-      setTimeout(() => {
-        renderFormCategoriesGrid();
-        grid.classList.remove('morphing');
-      }, 160);
+      renderFormCategoriesGrid();
+      updateFormUIVisibility();
     }
 
     function setFormPayer(payerCode) {
       activeFormPayer = payerCode;
       document.getElementById('payer-btn-CYO').classList.toggle('active', payerCode === 'CYO');
       document.getElementById('payer-btn-LKS').classList.toggle('active', payerCode === 'LKS');
+    }
+
+    function updateFormUIVisibility() {
+      const payerBlock = document.getElementById('form-payer-block');
+      if (activeFormLedgerTarget === 'Shared_Ledger') {
+        payerBlock.style.display = 'flex';
+      } else {
+        payerBlock.style.display = 'none';
+      }
     }
 
     function renderFormCategoriesGrid() {
@@ -921,7 +891,7 @@
           calculateRunningMetrics();
           renderFeed();
         }
-      } catch (err) { console.log("Sync track caught."); }
+      } catch (err) { console.log("Sync error captured."); }
     }
 
     function calculateRunningMetrics() {
@@ -938,17 +908,17 @@
         if(row[5] === "Expense") privateExp += (parseFloat(row[3]) || 0);
       });
 
-      const fairShare of Shared = totalShared / 2;
+      const fairShareOfShared = totalShared / 2;
       document.getElementById('val-total-expenses').textContent = `RM ${totalShared.toFixed(2)}`;
-      document.getElementById('val-my-expenses').textContent = `RM ${(privateExp + (totalShared / 2)).toFixed(2)}`;
+      document.getElementById('val-my-expenses').textContent = `RM ${(privateExp + fairShareOfShared).toFixed(2)}`;
       document.getElementById('bal-bubu-paid').textContent = `RM ${bubuPaid.toFixed(2)}`;
       document.getElementById('bal-yier-paid').textContent = `RM ${yierPaid.toFixed(2)}`;
       
       const sentence = document.getElementById('settlement-sentence');
-      if (bubuPaid > (totalShared / 2)) {
-        sentence.textContent = `Yier 🐼 owes Bubu 🐻 RM ${(bubuPaid - (totalShared / 2)).toFixed(2)}`;
-      } else if (yierPaid > (totalShared / 2)) {
-        sentence.textContent = `Bubu 🐻 owes Yier 🐼 RM ${(yierPaid - (totalShared / 2)).toFixed(2)}`;
+      if (bubuPaid > fairShareOfShared) {
+        sentence.textContent = `Yier 🐼 owes Bubu 🐻 RM ${(bubuPaid - fairShareOfShared).toFixed(2)}`;
+      } else if (yierPaid > fairShareOfShared) {
+        sentence.textContent = `Bubu 🐻 owes Yier 🐼 RM ${(yierPaid - fairShareOfShared).toFixed(2)}`;
       } else {
         sentence.textContent = `Settled up perfectly!`;
       }
